@@ -10,3 +10,5 @@ pdb_files/prepared_pdb_files
 10
 --log_dir_base
 output/energize_outputs
+--rosetta_main_dir
+rosetta_minimal

@@ -63,20 +63,20 @@ def run_docking_step(rosetta_scripts_bin_fn: str,
         dock_cmd = [rosetta_scripts_bin_fn,
                     "-database", database_path,
                     "-in:file:s", in_structure_fn,
-                    "-extra_res_fa AKG.params",
-                    "-extra_res_fa NEU.params",
+                    "-extra_res_fa", "AKG.params",
+                    "-extra_res_fa" ,"NEU.params",
                     "-use_input_sc",
                     "-ex1",
                     "-ex2",
-                    "-no_optH false",
-                    "-flip_HNQ true",
-                    "-ignore_ligand_chi true",
+                    "-no_optH", "false",
+                    "-flip_HNQ", "true",
+                    "-ignore_ligand_chi","true",
                     "-out:path:all", "docked_structures",
                     "-out:file:scorefile", "docked_score.sc",
                     "-out:overwrite",
-                    "-restore_pre_talaris_2013_behavior true,
+                    "-restore_pre_talaris_2013_behavior", "true",
                     "-parser:protocol", "docking_minimize_fast.xml",
-                    '-nstruct', str(num_structs)]
+                    "-nstruct", str(num_structs)]
     else:
         # not 100% sure if sameer's docking script requires different args for WT
         # either way, WT is not supported for docking at the moment...
