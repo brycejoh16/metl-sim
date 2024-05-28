@@ -4,6 +4,7 @@ import argparse
 import subprocess
 import shutil
 import os
+import os
 import sys
 from os.path import isdir, join, basename, abspath
 import uuid
@@ -201,8 +202,9 @@ def prep_working_dir(template_dir, working_dir, pdb_fn, chain, variant, overwrit
 
     # copy over files from the template dir that don't need to be changed
     files_to_copy = ["docking_minimize.xml", "docking_minimize_fast.xml",
-                     "options_dock.txt", "options_mutate.txt", "protein_dock_fast.sh"]
-
+                     "options_dock.txt", "options_mutate.txt", "protein_dock_fast.sh",
+                     "AKG.params","NEU.params","NEU_conformers.pdb"]
+   #todo : params files 
     for fn in files_to_copy:
         shutil.copy(join(template_dir, fn), working_dir)
 

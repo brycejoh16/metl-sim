@@ -1,0 +1,9 @@
+--variants_fn
+variant_lists/SadA_AlphaFold_p_example.txt
+--save_wd
+--rosetta_main_dir
+rosetta_minimal
+--pdb_dir
+pdb_files/raw_pdb_files
+--log_dir_base
+output/energize_outputs
