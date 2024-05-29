@@ -16,3 +16,4 @@ htcondor/templates/osdf_python_distribution.txt
 htcondor/templates/osdf_rosetta_distribution.txt
 --github_tag
 --github_token
+
