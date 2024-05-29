@@ -5,15 +5,13 @@ sadA_singles_docking
 --energize_args_fn
 docking_args/sadA_docking_set_1.txt
 --master_variant_fn
-variant_lists/2qmt_p_all_NS-1.txt
+variant_lists/SadA_NSLEU_Corrected_3701_best_structure_0044_correct_seq_100_p_example.txt
 --variants_per_job
 -1
---variants_fn
-variant_lists/SadA_NSLEU_Corrected_3701_best_structure_0044_correct_seq_100_p_example.txt
 --osdf_python_distribution
 htcondor/templates/osdf_python_distribution.txt
 --osdf_rosetta_distribution
 htcondor/templates/osdf_rosetta_distribution.txt
 --github_tag
+f95e5b02033e8c5c4e96eb4fd3c78f3be4f11f39
 --github_token
-
