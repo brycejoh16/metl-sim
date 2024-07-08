@@ -147,7 +147,8 @@ def fetch_repo(github_tag, github_token, out_dir):
 
     http = urllib3.PoolManager()
     # todo: when repo is public, authorization token will no longer be needed
-    response = http.request("GET", url, preload_content=False, headers={"Authorization": "token {}".format(github_token)})
+    response = http.request("GET", url, preload_content=False)
+    # , headers={"Authorization": "token {}".format(github_token)})
 
     # save_fn = join(out_dir, "{}.tar.gz".format(github_tag))
     # use static output filename to make transfer/unzipping easier (less need to fill in github_tag everywhere)
