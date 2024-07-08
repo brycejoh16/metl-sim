@@ -247,7 +247,7 @@ def run_single_variant(rosetta_main_dir: str,
     # this selects the docking structure w/ the lowest dG_separated
     dock_df = energize.parse_score_sc(score_sc_fn=join(working_dir, "docked_structures", "docked_score.sc"),
                                       agg_method="min_energy_first",
-                                      sort_col="interface_delta_X")
+                                      sort_col="total_score")
 
     # no additional energies to concat... so just use the dock_df
     full_df = dock_df
