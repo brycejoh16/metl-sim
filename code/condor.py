@@ -195,6 +195,8 @@ def prep_energize(args):
         pyscript = "gb1_docking.py"
     elif args.run_type == "energize_docking_sadA":
         pyscript = "sadA_docking.py"
+    elif args.run_type == "energize_andres_docking_sadA":
+        pyscript = "sadA_docking_andres_protocol.py"
     else:
         raise ValueError("Invalid run type: {}".format(args.run_type))
 
@@ -444,7 +446,8 @@ if __name__ == "__main__":
                         help="prepare or energize",
                         type=str,
                         default="energize",
-                        choices=["prepare", "energize", "energize_docking","energize_docking_sadA"])
+                        choices=["prepare", "energize", "energize_docking","energize_docking_sadA",
+                                 'energize_andres_docking_sadA'])
 
     parser.add_argument("--run_name",
                         help="name for this condor run, used for log directory",

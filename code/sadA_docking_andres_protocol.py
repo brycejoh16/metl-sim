@@ -28,6 +28,8 @@ def run_mutate_step(rosetta_scripts_bin_fn, database_path, working_dir):
     structure_fn = "structure.pdb"
 
     # note that options_mutate.txt specifies an output directory of "mutated_structures"
+
+
     mutate_cmd = [rosetta_scripts_bin_fn,
                   '-database', database_path,
                   "-in:file:s", structure_fn,
@@ -57,27 +59,50 @@ def run_docking_step(rosetta_scripts_bin_fn: str,
                      num_structs: int,
                      working_dir: str,
                      variant_has_mutations: bool = True):
- 
-    in_structure_fn = "mutated_structures/structure_0001.pdb"
+
+
+    in_structure_fn = "structure.pdb"
 
     if variant_has_mutations:
-        dock_cmd = [rosetta_scripts_bin_fn,
-                    "-database", database_path,
-                    "-in:file:s", in_structure_fn,
-                    "-extra_res_fa", "AKG.params",
-                    "-extra_res_fa" ,"NEU.params",
-                    "-use_input_sc",
-                    "-ex1",
-                    "-ex2",
-                    "-no_optH", "false",
-                    "-flip_HNQ", "true",
-                    "-ignore_ligand_chi","true",
-                    "-out:path:all", "docked_structures",
-                    "-out:file:scorefile", "docked_score.sc",
-                    "-out:overwrite",
-                    "-restore_pre_talaris_2013_behavior", "true",
-                    "-parser:protocol", "docking_minimize_fast.xml",
-                    "-nstruct", str(num_structs)]
+
+        dock_cmd = [
+            rosetta_scripts_bin_fn,
+            "-database", database_path,
+            "-parser:protocol", "final_docking_2021.36+release.57ac713.xml",
+            "-in:file:s",in_structure_fn,
+            "-restore_pre_talaris_2013_behavior", "true",
+            "-in:auto_setup_metals",
+            "-extra_res_fa", "AKG.params",
+            "-extra_res_fa", "NEU.params",
+            "-ex1",
+            "-ex2",
+            "-no_optH", "false",
+            "-flip_HNQ", "true",
+            "-ignore_ligand_chi", "true",
+            "-nstruct",  str(num_structs),
+            "-out:overwrite",
+            "-out:path:all", "docked_structures",
+            "-out:file:scorefile", "docked_score.sc",
+        ]
+
+
+        # dock_cmd = [rosetta_scripts_bin_fn,
+        #             "-database", database_path,
+        #             "-in:file:s", in_structure_fn,
+        #             "-extra_res_fa", "AKG.params",
+        #             "-extra_res_fa" ,"NEU.params",
+        #             "-use_input_sc",
+        #             "-ex1",
+        #             "-ex2",
+        #             "-no_optH", "false",
+        #             "-flip_HNQ", "true",
+        #             "-ignore_ligand_chi","true",
+        #             "-out:path:all", "docked_structures",
+        #             "-out:file:scorefile", "docked_score.sc",
+        #             "-out:overwrite",
+        #             "-restore_pre_talaris_2013_behavior", "true",
+        #             "-parser:protocol", "docking_minimize_fast.xml",
+        #             "-nstruct", str(num_structs)]
     else:
         # not 100% sure if sameer's docking script requires different args for WT
         # either way, WT is not supported for docking at the moment...
@@ -102,6 +127,9 @@ def run_docking_pipeline(rosetta_main_dir: str,
     relax_bin_fn, rosetta_scripts_bin_fn, score_jd2_bin_fn, database_path = energize.get_rosetta_paths(rosetta_main_dir)
 
     # run the mutate step
+
+    # no need to run mutation in andres protocol because there is no mutate step
+
     # if variant_has_mutations:
     #     mt_start_time = time.time()
     #     run_mutate_step(rosetta_scripts_bin_fn, database_path, working_dir)
@@ -111,7 +139,8 @@ def run_docking_pipeline(rosetta_main_dir: str,
 
     # run docking step
     dock_start_time = time.time()
-    run_docking_step(rosetta_scripts_bin_fn, database_path, num_structs, working_dir, variant_has_mutations)
+    run_docking_step(rosetta_scripts_bin_fn, database_path, num_structs,
+                     working_dir, variant_has_mutations)
     dock_run_time = time.time() - dock_start_time
 
     # keep track of how long it takes to run all steps
@@ -128,7 +157,7 @@ def run_docking_pipeline(rosetta_main_dir: str,
 
 def gen_mutate_xml(variant, chain, working_dir):
 
-    template_fn = "templates/sadA_docking_wd_template/mutate_template.xml"
+    template_fn = "templates/sadA_docking_andres_template/temp_2021.36+release.57ac713.xml"
 
     aa_map = {
         "A": "ALA", "C": "CYS", "D": "ASP", "E": "GLU", "F": "PHE", "G": "GLY",
@@ -151,21 +180,21 @@ def gen_mutate_xml(variant, chain, working_dir):
         idxs.append(residue_idx + chain)
         mutate_residue_blocks.append(
             f'<MutateResidue name="mutant{i}" target="{residue_idx}{chain}" new_res="{aa_map[new_aa]}"/>')
-        mutate_residue_movers.append(f'<Add mover_name="mutant{i}"/>')
+        # mutate_residue_movers.append(f'<Add mover_name="mutant{i}"/>')
         protocols.append(f'<Add mover_name="mutant{i}"/>')
 
     with open(template_fn, 'r') as template_file:
         template = template_file.read()
 
+
     filled_template = template.format(
-        joined_idxs=",".join(idxs),
         mutate_residue_placeholders="\n".join(mutate_residue_blocks),
-        mutate_residue_movers="\n".join(mutate_residue_movers),
         protocols_placeholders="\n".join(protocols)
     )
 
-    with open(join(working_dir, "mutate.xml"), "w") as f:
+    with open(f'{working_dir}/final_docking_2021.36+release.57ac713.xml','w') as f:
         f.write(filled_template)
+
 
 
 def prep_working_dir(template_dir, working_dir, pdb_fn, chain, variant, overwrite_wd=False):
@@ -201,8 +230,7 @@ def prep_working_dir(template_dir, working_dir, pdb_fn, chain, variant, overwrit
     shutil.copyfile(pdb_fn, join(working_dir, "structure.pdb"))
 
     # copy over files from the template dir that don't need to be changed
-    files_to_copy = ["docking_minimize.xml", "docking_minimize_fast.xml",
-                     "options_dock.txt", "options_mutate.txt", "protein_dock_fast.sh",
+    files_to_copy = ["temp_2021.36+release.57ac713.xml",
                      "AKG.params","NEU.params","NEU_conformers.pdb"]
    #todo : params files 
     for fn in files_to_copy:
@@ -309,7 +337,7 @@ def main(args):
     os.makedirs(staging_dir, exist_ok=True)
 
     # define the working directory constant
-    working_dir = "sadA_docking_wd"
+    working_dir = "sadA_docking_andres_wd"
 
     # loop through each variant, model it with rosetta, save results
     # individual variant outputs will be placed in the staging directory

@@ -26,8 +26,8 @@
 			<ClassicGrid grid_name="classic" weight="1.0"/>
 		</SCORINGGRIDS>
 		<MOVERS>
-			<MutateResidue name="mutant1" target="262A" new_res="PHE"/>
-
+<!--			<MutateResidue name="mutant1" target="262A" new_res="PHE"/>-->
+			{mutate_residue_placeholders}
 
 			<Transform name="transform" chain="X" box_size="0.0" move_distance="0.0" angle="00" cycles="200" repeats="1" temperature="0" />
 			<HighResDocker name="high_res_docker" cycles="6" repack_every_Nth="3" scorefxn="ligand_soft_rep" movemap_builder="docking"/>
@@ -36,9 +36,7 @@
 
 		</MOVERS>
 		<PROTOCOLS>
-
-			<Add mover_name="mutant1"/>
-
+			{protocols_placeholders}
 
 			<Add mover_name="transform"/>
 			<Add mover_name="high_res_docker"/>

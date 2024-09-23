@@ -1,0 +1,2 @@
+SadA_NSLeu_Corrected_3701_best_structure_0044_correct_seq_2024_3_6_unrelaxed_ver_2021.36+release.57ac713_p.pdb M1A
+SadA_NSLeu_Corrected_3701_best_structure_0044_correct_seq_2024_3_6_unrelaxed_ver_2021.36+release.57ac713_p.pdb M1C
