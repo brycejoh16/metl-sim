@@ -430,7 +430,7 @@ def prep_additional_data_files(additional_data_files, run_dir, additional_data_d
 
 
 def main(args):
-    if args.run_type in ["energize", "energize_docking","energize_docking_sadA"]:
+    if args.run_type in ["energize", "energize_docking","energize_docking_sadA",'energize_andres_docking_sadA']:
         prep_energize(args)
     elif args.run_type == "prepare":
         prep_prepare(args)
