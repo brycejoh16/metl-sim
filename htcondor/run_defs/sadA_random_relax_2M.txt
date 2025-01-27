@@ -1,0 +1,14 @@
+--run_type
+energize
+--run_name
+sadA_2M_random
+--energize_args_fn
+energize_args/condor_set_2.txt
+--master_variant_fn
+variant_lists/SadA_rosetta_2024_3_6_p_subvariants_TN-2M_MAXS-5_MINS-2_filtered-DB-0-SadA_rosetta_2024_3_6_p_RS-571300726.txt
+--variants_per_job
+-1
+--github_tag
+
+--github_token
+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
