@@ -1,3 +1,3 @@
-http://proxy.chtc.wisc.edu/SQUID/bcjohnson7/rosetta_min_enc_v2.tar.gz.aa
-http://proxy.chtc.wisc.edu/SQUID/bcjohnson7/rosetta_min_enc_v2.tar.gz.ab
-http://proxy.chtc.wisc.edu/SQUID/bcjohnson7/rosetta_min_enc_v2.tar.gz.ac
+osdf:///chtc/staging/bcjohnson7/rosetta_min_enc_v2.tar.gz.aa
+osdf:///chtc/staging/bcjohnson7/rosetta_min_enc_v2.tar.gz.ab
+osdf:///chtc/staging/bcjohnson7/rosetta_min_enc_v2.tar.gz.ac
