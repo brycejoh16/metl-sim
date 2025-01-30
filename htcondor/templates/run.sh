@@ -63,8 +63,8 @@ rm rosettafy_env_v0.7.11.tar.gz
 # the openssl version inside the environment
 echo "Decrypting Rosetta"
 openssl version # echo the version for my knowledge
-openssl enc -d -aes256 -pbkdf2 -in rosetta_min_enc_v2.tar.gz -out rosetta_min.tar.gz -pass file:pass.txt
-rm rosetta_min_enc_v2.tar.gz
+openssl enc -d -aes256 -pbkdf2 -in rosetta_min_enc.tar.gz -out rosetta_min.tar.gz -pass file:pass.txt
+rm rosetta_min_enc.tar.gz
 
 # extract rosetta and any additional tar files that might contain additional data
 if [ "$(ls 2>/dev/null -Ubad1 -- *.tar.gz | wc -l)" -gt 0 ];
