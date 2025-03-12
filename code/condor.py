@@ -193,10 +193,8 @@ def prep_energize(args):
         pyscript = "energize.py"
     elif args.run_type == "energize_docking":
         pyscript = "gb1_docking.py"
-    elif args.run_type == "energize_docking_sadA":
-        pyscript = "sadA_docking.py"
-    elif args.run_type == "energize_andres_docking_sadA":
-        pyscript = "sadA_docking_andres_protocol.py"
+    elif args.run_type == "rosetta_ligand_sadA":
+        pyscript = "sadA_rosetta_ligand.py"
     else:
         raise ValueError("Invalid run type: {}".format(args.run_type))
 
@@ -430,7 +428,7 @@ def prep_additional_data_files(additional_data_files, run_dir, additional_data_d
 
 
 def main(args):
-    if args.run_type in ["energize", "energize_docking","energize_docking_sadA",'energize_andres_docking_sadA']:
+    if args.run_type in ["energize", "energize_docking",'rosetta_ligand_sadA']:
         prep_energize(args)
     elif args.run_type == "prepare":
         prep_prepare(args)
@@ -446,8 +444,8 @@ if __name__ == "__main__":
                         help="prepare or energize",
                         type=str,
                         default="energize",
-                        choices=["prepare", "energize", "energize_docking","energize_docking_sadA",
-                                 'energize_andres_docking_sadA'])
+                        choices=["prepare", "energize", "energize_docking",
+                                 'rosetta_ligand_sadA'])
 
     parser.add_argument("--run_name",
                         help="name for this condor run, used for log directory",

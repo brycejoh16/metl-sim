@@ -1,2 +1,0 @@
-SadX_NSLeu_Corrected_3701_best_structure_0044_correct_seq_100.pdb M1A
-SadX_NSLeu_Corrected_3701_best_structure_0044_correct_seq_100.pdb M1C

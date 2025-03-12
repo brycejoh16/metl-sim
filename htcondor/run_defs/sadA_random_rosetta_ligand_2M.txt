@@ -13,6 +13,6 @@ htcondor/templates/osdf_python_distribution.txt
 --osdf_rosetta_distribution
 htcondor/templates/osdf_rosetta_distribution.txt
 --github_tag
-c09c90b9ae58ac8610087cf5aa5101fb42b79db4
+b6e755b9c56e9d887ec0fc4337725e1141aa85fe
 --github_token
 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
