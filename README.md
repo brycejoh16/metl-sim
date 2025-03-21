@@ -358,3 +358,20 @@ python code/process_run.py database --main_run_dirs output/htcondor_runs/my_cond
 ```
 
 This database can now be used with the [metl](https://github.com/gitter-lab/metl) repository to create a processed Rosetta dataset and pretrain METL models.
+
+
+
+### How SadX runs were done: 
+
+pretraining for docking 
+output/htcondor_runs/condor_energize_2025-01-30_17-15-35_sadA_singles_andres_docking_2M
+variant_database/sadA_2M_random_rosetta_ligand.db
+
+
+pretraining for relax 
+output/htcondor_runs/condor_energize_2025-01-30_17-27-43_sadA_2M_random
+variant_database/sadA_2M_random.db
+
+pretraining for all energy terms 
+output/htcondor_runs/condor_energize_2025-01-30_sadA_2M_random_all_energies
+

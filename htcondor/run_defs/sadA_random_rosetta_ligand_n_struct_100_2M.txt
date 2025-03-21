@@ -1,9 +1,9 @@
 --run_type
 rosetta_ligand_sadA
 --run_name
-sadA_singles_andres_docking_2M
+sadA_random_rosetta_ligand_n_struct_100_2M
 --energize_args_fn
-docking_args/sadA_docking_set_2.txt
+docking_args/sadA_docking_set_3.txt
 --master_variant_fn
 variant_lists/SadA_rosetta_2024_3_6_p_subvariants_TN-2M_MAXS-5_MINS-2_filtered-DB-0-SadA_rosetta_2024_3_6_p_RS-571300726.txt
 --variants_per_job
@@ -13,6 +13,5 @@ htcondor/templates/osdf_python_distribution.txt
 --osdf_rosetta_distribution
 htcondor/templates/osdf_rosetta_distribution.txt
 --github_tag
-b6e755b9c56e9d887ec0fc4337725e1141aa85fe
+
 --github_token
-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
