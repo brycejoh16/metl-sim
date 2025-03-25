@@ -1,7 +1,7 @@
 --run_type
-energize_andres_docking_sadA
+rosetta_ligand_sadA
 --run_name
-sadA_singles_andres_docking
+sadA_singles_rosetta_ligand
 --energize_args_fn
 docking_args/sadA_docking_set_1.txt
 --master_variant_fn

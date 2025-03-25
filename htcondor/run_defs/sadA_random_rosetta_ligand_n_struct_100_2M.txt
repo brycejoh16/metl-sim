@@ -7,11 +7,12 @@ docking_args/sadA_docking_set_3.txt
 --master_variant_fn
 variant_lists/SadA_rosetta_2024_3_6_p_subvariants_TN-2M_MAXS-5_MINS-2_filtered-DB-0-SadA_rosetta_2024_3_6_p_RS-571300726.txt
 --variants_per_job
--1
+25
 --osdf_python_distribution
 htcondor/templates/osdf_python_distribution.txt
 --osdf_rosetta_distribution
 htcondor/templates/osdf_rosetta_distribution.txt
 --github_tag
-
+4cb1e9d5b2571d557296ea1e6d2594fbf9f0deef
 --github_token
+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

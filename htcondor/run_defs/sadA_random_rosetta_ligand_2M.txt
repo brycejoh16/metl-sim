@@ -1,7 +1,7 @@
 --run_type
 rosetta_ligand_sadA
 --run_name
-sadA_singles_andres_docking_2M
+sadA_rosetta_ligand_2M
 --energize_args_fn
 docking_args/sadA_docking_set_2.txt
 --master_variant_fn
