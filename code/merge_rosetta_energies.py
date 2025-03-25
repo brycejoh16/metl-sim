@@ -5,8 +5,14 @@ import os
 
 def join_dataframes(dataframes, suffixes, output_dir, github_commit):
     log_file_path = os.path.join(output_dir, 'merge_log.txt')
+
     with open(log_file_path, 'w') as log_file:
-        log_file.write(f'GitHub Commit: {github_commit}\n')
+        def log_and_print(message):
+            """Helper function to log and print messages."""
+            print(message)
+            log_file.write(message + '\n')
+
+        log_and_print(f'GitHub Commit: {github_commit}')
 
         # Load and rename columns
         dfs = []
@@ -16,9 +22,10 @@ def join_dataframes(dataframes, suffixes, output_dir, github_commit):
             df = df.add_suffix(f'_{suffix}')
             df = df.rename(columns={f'variant_{suffix}': 'variant'})
             dfs.append(df)
-            log_file.write(f"Loaded '{path}' with suffix '{suffix}'\n")
-            log_file.write(f"Original columns: {list(original_columns)}\n")
-            log_file.write(f"Renamed columns: {list(df.columns)}\n\n")
+
+            log_and_print(f"\nLoaded '{path}' with suffix '{suffix}'")
+            log_and_print(f"Original columns: {list(original_columns)}")
+            log_and_print(f"Renamed columns: {list(df.columns)}\n")
 
         # Merge on the 'variant' column
         merged_df = dfs[0]
@@ -31,14 +38,15 @@ def join_dataframes(dataframes, suffixes, output_dir, github_commit):
 
         # Logging overlapping and missing variants
         total_overlap = len(merged_df)
-        log_file.write(f"Total overlapping variants: {total_overlap}\n")
+        log_and_print(f"\nTotal overlapping variants: {total_overlap}")
         for suffix, count in missing_counts.items():
-            log_file.write(f"Variants missing from '{suffix}': {count}\n")
+            log_and_print(f"Variants missing from '{suffix}': {count}")
 
         # Save the merged dataframe
         output_path = os.path.join(output_dir, 'final_energies_df.csv')
         merged_df.to_csv(output_path, index=False)
-        log_file.write(f"Final merged dataframe saved to '{output_path}'\n")
+        log_and_print(f"\nFinal merged dataframe saved to '{output_path}'")
+        log_and_print(f"Log file saved to '{log_file_path}'")
 
 
 if __name__ == '__main__':
@@ -49,7 +57,8 @@ if __name__ == '__main__':
     )
     parser.add_argument("--dataframes", nargs='+', required=True, help="Paths to the dataframes to join.")
     parser.add_argument("--suffixes", nargs='+', required=True, help="Suffixes corresponding to each dataframe.")
-    parser.add_argument("--output_dir", type=str, required=True, help="Directory to save the final merged dataframe and log file.")
+    parser.add_argument("--output_dir", type=str, required=True,
+                        help="Directory to save the final merged dataframe and log file.")
     parser.add_argument("--github_commit", type=str, required=True, help="GitHub commit identifier.")
 
     args = parser.parse_args()
@@ -59,7 +68,4 @@ if __name__ == '__main__':
 
     os.makedirs(args.output_dir, exist_ok=True)
     join_dataframes(args.dataframes, args.suffixes, args.output_dir, args.github_commit)
-
-
-
 
