@@ -1,0 +1,12 @@
+--dataframes
+output/htcondor_runs/condor_energize_2025-01-30_17-15-35_sadA_rosetta_ligand_2M/processed_run/energies_df.csv,output/htcondor_runs/condor_energize_2025-01-30_17-27-43_sadA_2M_random/processed_run/energies_df.csv
+--suffixes
+rosetta_ligand,rosetta_relax
+--output_dir
+merged_output
+--github_commit
+
+--output_dir
+output/htcondor_runs/condor_energize_2025-01-30_sadA_2M_random_all_energies
+
+
