@@ -2,14 +2,30 @@ import argparse
 import pandas as pd
 import os
 
-def join_dataframes(dataframes, suffixes, output_dir, github_commit):
+def join_dataframes(dataframes, suffixes, output_dir, github_commit,file,remove_zero_variance):
+    '''
+
+    :param dataframes: list of paths to the directory containing the necessary dataframes which come from a metl-sim run
+    :param suffixes: what suffix to label each run with
+    :param output_dir: output directory to save all new files
+    :param github_commit: github commit this code was run with
+    :param file: between -  ['energies_df.csv','hparams_df.csv','jobs_df.csv']
+    :param remove_zero_variance: remove columnes which have zero variants [True, False]
+    :return:
+    '''
+
+
     log_file_path = os.path.join(output_dir, 'merge_log.txt')
 
     with open(log_file_path, 'w') as log_file:
+
+
         def log_and_print(message):
             """Helper function to log and print messages."""
             print(message)
             log_file.write(message + '\n')
+
+        log_and_print(f"File to merge: {file}")
 
         log_and_print(f'GitHub Commit: {github_commit}')
 
@@ -47,13 +63,18 @@ def join_dataframes(dataframes, suffixes, output_dir, github_commit):
             log_and_print(f"Variants missing from '{suffix}': {count}")
 
         # Remove columns with zero variance
-        zero_variance_columns = merged_df.loc[:, merged_df.nunique() <= 1].columns.tolist()
-        if zero_variance_columns:
-            zero_variance_columns = [item for item in zero_variance_columns if not item.startswith('pdb_fn')]
-            log_and_print(f"\nRemoving columns with zero variance: {zero_variance_columns}")
-            merged_df = merged_df.drop(columns=zero_variance_columns)
+        if remove_zero_variance:
+
+            zero_variance_columns = merged_df.loc[:, merged_df.nunique() <= 1].columns.tolist()
+            if zero_variance_columns:
+                zero_variance_columns = [item for item in zero_variance_columns if not item.startswith('pdb_fn')]
+                log_and_print(f"\nRemoving columns with zero variance: {zero_variance_columns}")
+                merged_df = merged_df.drop(columns=zero_variance_columns)
+            else:
+                log_and_print("\nNo columns with zero variance to remove.")
         else:
-            log_and_print("\nNo columns with zero variance to remove.")
+            log_and_print("\nSkipping removing columns with zero variance due to user specification.")
+
 
         # Save the merged dataframe
         output_path = os.path.join(output_dir, 'energies_df.csv')
@@ -78,4 +99,6 @@ if __name__ == '__main__':
         raise ValueError("The number of dataframes and suffixes must match.")
 
     os.makedirs(args.output_dir, exist_ok=True)
-    join_dataframes(args.dataframes, args.suffixes, args.output_dir, args.github_commit)
+
+    for file,rzv in zip(['energies_df.csv','hparams_df.csv','jobs_df.csv'],[True,False,False]):
+        join_dataframes(args.dataframes, args.suffixes, args.output_dir, args.github_commit,file=file,remove_zero_variance=rzv)
