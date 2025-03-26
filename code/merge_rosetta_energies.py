@@ -32,7 +32,7 @@ def join_dataframes(dataframes, suffixes, output_dir, github_commit,file,remove_
         # Load and rename columns
         dfs = []
         for path, suffix in zip(dataframes, suffixes):
-            df = pd.read_csv(path)
+            df = pd.read_csv(os.path.join(path,file))
             original_columns = df.columns
             df = df.add_suffix(f'_{suffix}')
             df = df.rename(columns={f'variant_{suffix}': 'variant'})
