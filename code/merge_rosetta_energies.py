@@ -30,16 +30,20 @@ def join_dataframes(dataframes, suffixes, output_dir, github_commit):
         merged_df = dfs[0]
         missing_counts = {}
         for df, suffix in zip(dfs[1:], suffixes[1:]):
-            initial_count = len(df)
+
             merged_df = merged_df.merge(df, on='variant', how='inner')
 
-            overlap_count = len(merged_df)
-            missing_counts[suffix] = initial_count - overlap_count
+
 
         # Logging overlapping and missing variants
         total_overlap = len(merged_df)
-        log_and_print(f"\nTotal overlapping variants: {total_overlap}")
-        for suffix, count in missing_counts.items():
+
+        log_and_print(f"\nTotal overlapping variants: {total_overlap} \n"
+                      f"Note: this includes extra variants from duplicates in some libraries")
+
+        for df, suffix in zip(dfs, suffixes):
+            initial_count = len(df)
+            count = initial_count - total_overlap
             log_and_print(f"Variants missing from '{suffix}': {count}")
 
         # Remove columns with zero variance
