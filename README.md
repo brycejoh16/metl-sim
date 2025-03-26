@@ -375,8 +375,17 @@ variant_database/sadA_2M_random.db
 pretraining for all energy terms 
 output/htcondor_runs/condor_energize_2025-01-30_sadA_2M_random_all_energies
 
-Note how the heatmap analysis was done. Shown by the heatmap.py and heatmap_docked python files. 
 
 
 #### Combining the datasets 
+
+Here is the 
+
+```angular2html
+python code/merge_rosetta_energies.py @merge_args/rosetta_ligand_relax_energies.txt
+```
+
+#### Heatmaps of the single mutants 
+Note how the heatmap analysis was done. Shown by the heatmap.py and heatmap_docked python files. 
+
 
