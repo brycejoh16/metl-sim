@@ -32,7 +32,7 @@ def join_dataframes(dataframes, suffixes, output_dir, github_commit,file,remove_
         # Load and rename columns
         dfs = []
         for path, suffix in zip(dataframes, suffixes):
-            df = pd.read_csv(os.path.join(path,file))
+            df = pd.read_csv(os.path.join(path,'processed_run',file))
             original_columns = df.columns
             df = df.add_suffix(f'_{suffix}')
             df = df.rename(columns={f'variant_{suffix}': 'variant'})
@@ -77,10 +77,22 @@ def join_dataframes(dataframes, suffixes, output_dir, github_commit,file,remove_
 
 
         # Save the merged dataframe
-        output_path = os.path.join(output_dir, 'energies_df.csv')
+        output_path = os.path.join(output_dir,'processed_run', 'energies_df.csv')
         merged_df.to_csv(output_path, index=False)
         log_and_print(f"\nFinal merged dataframe saved to '{output_path}'")
         log_and_print(f"Log file saved to '{log_file_path}'")
+
+
+def concat_dataframes(paths,file,output_dir):
+    dfs=[]
+    for path in paths:
+        df= pd.read_csv(os.path.join(path,'processed_run',file))
+        dfs.append(df)
+
+    df_final = pd.concat(dfs)
+
+
+    df_final.to_csv(os.path.join(output_dir,'processed_run',file))
 
 if __name__ == '__main__':
 
@@ -89,7 +101,7 @@ if __name__ == '__main__':
         formatter_class=argparse.RawDescriptionHelpFormatter,
         fromfile_prefix_chars="@"
     )
-    parser.add_argument("--dataframes", nargs='+', required=True, help="Paths to the dataframes to join.")
+    parser.add_argument("--dataframes", nargs='+', required=True, help="Paths to the directories of the dataframes to join.")
     parser.add_argument("--suffixes", nargs='+', required=True, help="Suffixes corresponding to each dataframe.")
     parser.add_argument("--output_dir", type=str, required=True, help="Directory to save the final merged dataframe and log file.")
     parser.add_argument("--github_commit", type=str, required=True, help="GitHub commit identifier.")
@@ -100,5 +112,13 @@ if __name__ == '__main__':
 
     os.makedirs(args.output_dir, exist_ok=True)
 
-    for file,rzv in zip(['energies_df.csv','hparams_df.csv','jobs_df.csv'],[True,False,False]):
-        join_dataframes(args.dataframes, args.suffixes, args.output_dir, args.github_commit,file=file,remove_zero_variance=rzv)
+    os.makedirs(os.path.join(args.output_dir,'processed_run'),exist_ok=True)
+    os.makedirs(os.path.join(args.output_dir, 'output','energize_outputs'), exist_ok=True)
+
+    for file in ['hparams_df.csv','jobs_df.csv']:
+        concat_dataframes(args.dataframes,file, args.output_dir)
+
+
+    join_dataframes(args.dataframes, args.suffixes, args.output_dir, args.github_commit, file='energies_df.csv',
+                    remove_zero_variance=True)
+

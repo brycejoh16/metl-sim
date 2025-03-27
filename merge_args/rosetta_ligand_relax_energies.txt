@@ -1,12 +1,12 @@
 --dataframes
-output/htcondor_runs/condor_energize_2025-01-30_17-15-35_sadA_rosetta_ligand_2M/processed_run
-output/htcondor_runs/condor_energize_2025-01-30_17-27-43_sadA_2M_random/processed_run
+output/htcondor_runs/condor_energize_2025-01-30_17-15-35_sadA_rosetta_ligand_2M
+output/htcondor_runs/condor_energize_2025-01-30_17-27-43_sadA_2M_random
 --suffixes
 ligand
 relax
 --output_dir
 merged_output
 --github_commit
-7293bcfdcb822624416ef482047a962b80be89b0
+816a4a203ad4165bd0bce5dc6a6e7568d1aec996
 --output_dir
-output/htcondor_runs/condor_energize_2025-01-30_sadA_2M_random_all_energies/processed_run
+output/htcondor_runs/condor_energize_2025-01-30_sadA_2M_random_all_energies
