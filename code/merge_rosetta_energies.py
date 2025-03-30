@@ -36,7 +36,10 @@ def join_dataframes(dataframes, suffixes, output_dir, github_commit,file,remove_
             df = pd.read_csv(os.path.join(path,'processed_run',file))
             original_columns = df.columns
 
-            if suffix!='':
+            if suffix=='relax':
+                df = df.add_suffix(f'')
+                df = df.rename(columns={f'variant': 'variant'})
+            else:
                 df = df.add_suffix(f'_{suffix}')
                 df = df.rename(columns={f'variant_{suffix}': 'variant'})
             dfs.append(df)
@@ -96,7 +99,7 @@ def concat_dataframes(paths,file,output_dir):
     df_final = pd.concat(dfs)
 
 
-    df_final.to_csv(os.path.join(output_dir,'processed_run',file))
+    df_final.to_csv(os.path.join(output_dir,'processed_run',file),index=False)
 
 if __name__ == '__main__':
 

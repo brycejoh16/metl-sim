@@ -385,6 +385,9 @@ Here is the
 python code/merge_rosetta_energies.py @merge_args/rosetta_ligand_relax_energies.txt
 ```
 
+***Note***: 1) If you run this function twice it will add to the current database. Must change output filename. 
+(2) If suffix `relax` is chosen, no suffix will be added.
+
 #### Heatmaps of the single mutants 
 Note how the heatmap analysis was done. Shown by the heatmap.py and heatmap_docked python files. 
 
