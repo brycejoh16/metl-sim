@@ -32,10 +32,13 @@ def join_dataframes(dataframes, suffixes, output_dir, github_commit,file,remove_
         # Load and rename columns
         dfs = []
         for path, suffix in zip(dataframes, suffixes):
+
             df = pd.read_csv(os.path.join(path,'processed_run',file))
             original_columns = df.columns
-            df = df.add_suffix(f'_{suffix}')
-            df = df.rename(columns={f'variant_{suffix}': 'variant'})
+
+            if suffix!='':
+                df = df.add_suffix(f'_{suffix}')
+                df = df.rename(columns={f'variant_{suffix}': 'variant'})
             dfs.append(df)
 
             log_and_print(f"\nLoaded '{path}' with suffix '{suffix}'")
@@ -58,6 +61,7 @@ def join_dataframes(dataframes, suffixes, output_dir, github_commit,file,remove_
                       f"Note: this includes extra variants from duplicates in some libraries")
 
         for df, suffix in zip(dfs, suffixes):
+
             initial_count = len(df)
             count = initial_count - total_overlap
             log_and_print(f"Variants missing from '{suffix}': {count}")
