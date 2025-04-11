@@ -5,7 +5,7 @@ sadA_singles_rosetta_ligand
 --energize_args_fn
 docking_args/sadA_docking_set_1.txt
 --master_variant_fn
-variant_lists/SadA_NSLeu_Corrected_3701_best_structure_0044_correct_seq_2024_3_6_unrelaxed_ver_2021.36+release.57ac713_p_all_NS-1.txt
+
 --variants_per_job
 3
 --osdf_python_distribution
