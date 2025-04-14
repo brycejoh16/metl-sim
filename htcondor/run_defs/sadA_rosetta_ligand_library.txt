@@ -1,11 +1,11 @@
 --run_type
 rosetta_ligand_sadA
 --run_name
-sadA_singles_rosetta_ligand_n_structs_100
+sadA_library_rosetta_ligand_n_structs_100
 --energize_args_fn
 docking_args/sadA_docking_set_3.txt
 --master_variant_fn
-variant_lists/SadA_rosetta_2024_3_6_p_all_NS-1.txt
+variant_lists/SadA_lysate_library.txt
 --variants_per_job
 3
 --osdf_python_distribution
@@ -13,6 +13,6 @@ htcondor/templates/osdf_python_distribution.txt
 --osdf_rosetta_distribution
 htcondor/templates/osdf_rosetta_distribution.txt
 --github_tag
-9e688d3c08fe79ed70568872faa65e7e979223dc
+
 --github_token
 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
