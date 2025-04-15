@@ -4,20 +4,11 @@ import argparse
 import subprocess
 import shutil
 import os
-import os
 import sys
-from os.path import isdir, join, basename, abspath
+from os.path import  join, basename
 import uuid
-import socket
-import csv
-import platform
-
 import shortuuid
-import numpy as np
-import pandas as pd
-
 import energize
-from templates import fill_templates
 import time
 
 
@@ -57,38 +48,35 @@ def run_mutate_step(rosetta_scripts_bin_fn, database_path, working_dir):
 def run_docking_step(rosetta_scripts_bin_fn: str,
                      database_path: str,
                      num_structs: int,
-                     working_dir: str,
-                     variant_has_mutations: bool = True):
+                     working_dir: str):
 
 
     in_structure_fn = "structure.pdb"
 
-    if variant_has_mutations:
 
-        dock_cmd = [
-            rosetta_scripts_bin_fn,
-            "-database", database_path,
-            "-parser:protocol", "final_docking_2021.36+release.57ac713.xml",
-            "-in:file:s",in_structure_fn,
-            "-restore_pre_talaris_2013_behavior", "true",
-            "-in:auto_setup_metals",
-            "-extra_res_fa", "AKG.params",
-            "-extra_res_fa", "NEU.params",
-            "-ex1",
-            "-ex2",
-            "-no_optH", "false",
-            "-flip_HNQ", "true",
-            "-ignore_ligand_chi", "true",
-            "-nstruct",  str(num_structs),
-            "-out:overwrite",
-            "-out:path:all", "docked_structures",
-            "-out:file:scorefile", "docked_score.sc",
-        ]
+    dock_cmd = [
+        rosetta_scripts_bin_fn,
+        "-database", database_path,
+        "-parser:protocol", "final_docking_2021.36+release.57ac713.xml",
+        "-in:file:s",in_structure_fn,
+        "-restore_pre_talaris_2013_behavior", "true",
+        "-in:auto_setup_metals",
+        "-extra_res_fa", "AKG.params",
+        "-extra_res_fa", "NEU.params",
+        "-ex1",
+        "-ex2",
+        "-no_optH", "false",
+        "-flip_HNQ", "true",
+        "-ignore_ligand_chi", "true",
+        "-nstruct",  str(num_structs),
+        "-out:overwrite",
+        "-out:path:all", "docked_structures",
+        "-out:file:scorefile", "docked_score.sc",
+    ]
 
-    else:
         # not 100% sure if sameer's docking script requires different args for WT
         # either way, WT is not supported for docking at the moment...
-        raise NotImplementedError("This function doesn't support the WT yet")
+        # raise NotImplementedError("This function doesn't support the WT yet")
 
     dock_out_fn = join(working_dir, "dock.out")
     with open(dock_out_fn, "w") as f:
@@ -99,8 +87,7 @@ def run_docking_step(rosetta_scripts_bin_fn: str,
 
 def run_docking_pipeline(rosetta_main_dir: str,
                          working_dir: str,
-                         num_structs: int,
-                         variant_has_mutations: bool = True):
+                         num_structs: int):
 
     # keep track of how long it takes to run Rosetta
     all_start = time.time()
@@ -122,7 +109,7 @@ def run_docking_pipeline(rosetta_main_dir: str,
     # run docking step
     dock_start_time = time.time()
     run_docking_step(rosetta_scripts_bin_fn, database_path, num_structs,
-                     working_dir, variant_has_mutations)
+                     working_dir)
     dock_run_time = time.time() - dock_start_time
 
     # keep track of how long it takes to run all steps
@@ -221,7 +208,7 @@ def prep_working_dir(template_dir, working_dir, pdb_fn, chain, variant, overwrit
     # copy over files from the template dir that don't need to be changed
     files_to_copy = ["temp_2021.36+release.57ac713.xml",
                      "AKG.params","NEU.params","NEU_conformers.pdb"]
-   #todo : params files 
+
     for fn in files_to_copy:
         shutil.copy(join(template_dir, fn), working_dir)
 
@@ -253,13 +240,10 @@ def run_single_variant(rosetta_main_dir: str,
                      variant,
                      overwrite_wd=True)
 
-    # run the mutate and relax steps
-    variant_has_mutations = False if variant == "_wt" else True
 
     run_times = run_docking_pipeline(rosetta_main_dir,
                                      working_dir,
-                                     rosetta_hparams["num_structs"],
-                                     variant_has_mutations)
+                                     rosetta_hparams["num_structs"])
 
     # parse the output files into a single-record csv, appending info about variant
     # place in a staging directory and combine with other variants that run during this job
@@ -423,7 +407,6 @@ if __name__ == "__main__":
                         help="path to text file containing protein variants",
                         type=str)
 
-    # todo: change to specifying the chain in the variants_fn file to support different chains in a single run
     parser.add_argument("--chain",
                         help="the chain to use from the pdb file",
                         type=str,
