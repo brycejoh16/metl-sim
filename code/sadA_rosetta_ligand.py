@@ -137,7 +137,7 @@ def run_docking_pipeline(rosetta_main_dir: str,
     return run_times
 
 
-def gen_mutate_xml(variant, chain, working_dir):
+def gen_mutate_xml(variant, chain, working_dir,variant_has_mutations):
 
     template_fn = "templates/sadA_rosetta_ligand_template/temp_2021.36+release.57ac713.xml"
 
@@ -154,21 +154,28 @@ def gen_mutate_xml(variant, chain, working_dir):
     mutate_residue_movers = []
     protocols = []
 
-    for i, v in enumerate(variants, 1):
-        if len(v) < 3:
-            raise ValueError(f"ERROR: length(variant) < 3 : {v}")
-        parent_aa, residue_idx, new_aa = v[0], v[1:-1], v[-1]
 
-        idxs.append(residue_idx + chain)
-        mutate_residue_blocks.append(
-            f'<MutateResidue name="mutant{i}" target="{residue_idx}{chain}" new_res="{aa_map[new_aa]}"/>')
-        # mutate_residue_movers.append(f'<Add mover_name="mutant{i}"/>')
-        protocols.append(f'<Add mover_name="mutant{i}"/>')
+    if variant_has_mutations:
+        for i, v in enumerate(variants, 1):
+            if len(v) < 3:
+                raise ValueError(f"ERROR: length(variant) < 3 : {v}")
+            parent_aa, residue_idx, new_aa = v[0], v[1:-1], v[-1]
+
+            idxs.append(residue_idx + chain)
+            mutate_residue_blocks.append(
+                f'<MutateResidue name="mutant{i}" target="{residue_idx}{chain}" new_res="{aa_map[new_aa]}"/>')
+            # mutate_residue_movers.append(f'<Add mover_name="mutant{i}"/>')
+            protocols.append(f'<Add mover_name="mutant{i}"/>')
+
+
+    else:
+        # if the input is _wt then just add some more spaces, we don't mutate
+        # or add in a mover
+        protocols = [" ", " "]
+        mutate_residue_blocks = [" ", " "]
 
     with open(template_fn, 'r') as template_file:
         template = template_file.read()
-
-
     filled_template = template.format(
         mutate_residue_placeholders="\n".join(mutate_residue_blocks),
         protocols_placeholders="\n".join(protocols)
@@ -218,8 +225,10 @@ def prep_working_dir(template_dir, working_dir, pdb_fn, chain, variant, overwrit
     for fn in files_to_copy:
         shutil.copy(join(template_dir, fn), working_dir)
 
+    variant_has_mutations = False if variant == "_wt" else True
+
     # create the mutate.xml file
-    gen_mutate_xml(variant, chain, working_dir)
+    gen_mutate_xml(variant, chain, working_dir,variant_has_mutations)
 
 
 def run_single_variant(rosetta_main_dir: str,

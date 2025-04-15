@@ -9,9 +9,9 @@ variant_lists/SadA_lysate_library.txt
 --variants_per_job
 3
 --github_tag
-
+6667323575790adc16d2845ce16f036b47c885a5
 --github_token
-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
+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
 --osdf_python_distribution
 htcondor/templates/osdf_python_distribution.txt
 --osdf_rosetta_distribution
