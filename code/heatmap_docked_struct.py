@@ -57,6 +57,7 @@ if __name__ == '__main__':
     # Example usage
     pdb_filename = "pdb_files/prepared_pdb_files/SadA_rosetta_2024_3_6_p.pdb"  # Replace with your PDB path
     csv_filename = "output/htcondor_runs/condor_energize_2024-09-23_00-16-21_sadA_singles_andres_docking/processed_run/energies_df.csv"  # Replace with your CSV path
+    # csv_filename='output/htcondor_runs/condor_energize_2025-04-11_17-32-03_sadA_singles_rosetta_ligand_n_structs_100/processed_run/energies_df.csv'
     output_pdb = "output/htcondor_runs/condor_energize_2024-09-23_00-16-21_sadA_singles_andres_docking/processed_run/docked_with_mutants.pdb"  # Output path for modified PDB
-
+    # output_pdb='output/htcondor_runs/condor_energize_2025-04-11_17-32-03_sadA_singles_rosetta_ligand_n_structs_100/processed_run/docked_with_mutants.pdb'
     main(pdb_filename, csv_filename, output_pdb)

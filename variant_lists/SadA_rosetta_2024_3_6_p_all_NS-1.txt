@@ -5185,3 +5185,4 @@ SadA_rosetta_2024_3_6_p.pdb D273T
 SadA_rosetta_2024_3_6_p.pdb D273V
 SadA_rosetta_2024_3_6_p.pdb D273W
 SadA_rosetta_2024_3_6_p.pdb D273Y
+SadA_rosetta_2024_3_6_p.pdb _wt
