@@ -32,31 +32,34 @@ def check_for_failed_jobs(main_dir, energize_out_dir, out_dir):
 
 
 def resource_usage(condor_log_dir, out_dir):
-    resources = an.resource_usage(condor_log_dir)
+    if not os.path.isdir(condor_log_dir):
+        Warning("❌ condor_log_dir does not exist, skipping `resources.csv`")
+    else:
+        resources = an.resource_usage(condor_log_dir)
 
-    # also save resources tsv to a file
-    resources.to_csv(join(out_dir, "resources.csv"), index=False)
+        # also save resources tsv to a file
+        resources.to_csv(join(out_dir, "resources.csv"), index=False)
 
-    fig, ax = plt.subplots(1)
-    sns.histplot(data=resources, x="memory", ax=ax, bins=30)
-    ax.set(title="Memory usage per job", xlabel="Memory (MB)", ylabel="Num jobs")
-    fig.tight_layout()
-    fig.savefig(join(out_dir, "mem.png"))
-    plt.close(fig)
+        fig, ax = plt.subplots(1)
+        sns.histplot(data=resources, x="memory", ax=ax, bins=30)
+        ax.set(title="Memory usage per job", xlabel="Memory (MB)", ylabel="Num jobs")
+        fig.tight_layout()
+        fig.savefig(join(out_dir, "mem.png"))
+        plt.close(fig)
 
-    fig, ax = plt.subplots(1)
-    sns.histplot(data=resources, x="cpus", ax=ax, bins=30)
-    ax.set(title="CPU usage per job", xlabel="CPUs", ylabel="Num jobs")
-    fig.tight_layout()
-    fig.savefig(join(out_dir, "cpu.png"))
-    plt.close(fig)
+        fig, ax = plt.subplots(1)
+        sns.histplot(data=resources, x="cpus", ax=ax, bins=30)
+        ax.set(title="CPU usage per job", xlabel="CPUs", ylabel="Num jobs")
+        fig.tight_layout()
+        fig.savefig(join(out_dir, "cpu.png"))
+        plt.close(fig)
 
-    fig, ax = plt.subplots(1)
-    sns.histplot(x=resources["disk"] / 1000, ax=ax, bins=30)
-    ax.set(title="Disk usage per job", xlabel="Disk (MB)", ylabel="Num jobs")
-    fig.tight_layout()
-    fig.savefig(join(out_dir, "disk.png"))
-    plt.close(fig)
+        fig, ax = plt.subplots(1)
+        sns.histplot(x=resources["disk"] / 1000, ax=ax, bins=30)
+        ax.set(title="Disk usage per job", xlabel="Disk (MB)", ylabel="Num jobs")
+        fig.tight_layout()
+        fig.savefig(join(out_dir, "disk.png"))
+        plt.close(fig)
 
 
 def runtimes_and_energies(energize_out_dir, out_dir):

@@ -25,7 +25,8 @@ class RosettaError(Exception):
 
 
 def prep_working_dir(template_dir, working_dir, pdb_fn, chain, variant,
-                     relax_distance, relax_repeats, overwrite_wd=False):
+                     relax_distance, relax_repeats, overwrite_wd=False,
+                     additional_files_to_copy= None):
     """ prep the working directory by copying over files from the template directory, modifying as needed """
     # delete the current working directory if one exists
     if overwrite_wd:
@@ -51,10 +52,17 @@ def prep_working_dir(template_dir, working_dir, pdb_fn, chain, variant,
     if variant != "_wt":
         fill_templates(template_dir, chain, variant, relax_distance, relax_repeats, working_dir)
 
-    # copy over files from the template dir that don't need to be changed
     files_to_copy = ["flags_mutate", "flags_relax", "flags_relax_all", "flags_filter", "flags_centroid",
                      "filter_3rd.xml", "total_hydrophobic_weights_version1.wts",
                      "total_hydrophobic_weights_version2.wts"]
+
+
+    if additional_files_to_copy is None:
+        # copy over files from the template dir that don't need to be changed
+        pass
+    else:
+        files_to_copy = files_to_copy+additional_files_to_copy
+
 
     for fn in files_to_copy:
         shutil.copy(join(template_dir, fn), working_dir)
@@ -101,6 +109,9 @@ def run_filter_step(rosetta_scripts_bin_fn, database_path, working_dir):
 
 
 def run_centroid_step(score_jd2_bin_fn, database_path, working_dir):
+    # verifiction that it is okay to pass in a full atom pdb into a centroid energy function
+    # https://docs.rosettacommons.org/demos/latest/tutorials/full_atom_vs_centroid/fullatom_centroid
+
     centroid_cmd = [score_jd2_bin_fn, '-database', database_path, '@flags_centroid']
     centroid_out_fn = join(working_dir, "centroid.out")
     with open(centroid_out_fn, "w") as f:
@@ -221,11 +232,17 @@ def parse_score_sc(score_sc_fn: str,
 
 
 def run_single_variant(rosetta_main_dir, pdb_fn, chain, variant, rosetta_hparams,
-                       staging_dir, output_dir, save_wd=False):
+                       staging_dir, output_dir, save_wd=False,
+                       custom_template_dir= None,
+                       additional_files_to_copy=None):
     # grab the start time for this variant
     start_time = time.time()
 
-    template_dir = "templates/energize_wd_template"
+    if custom_template_dir is None:
+        template_dir = "templates/energize_wd_template"
+    else:
+        template_dir =custom_template_dir
+
     # todo: use a variant-specific working directory in the output directory (safer)
     working_dir = "energize_wd"
 
@@ -235,7 +252,8 @@ def run_single_variant(rosetta_main_dir, pdb_fn, chain, variant, rosetta_hparams
 
     # set up the working directory (copies the pdb file, sets up the rosetta scripts, etc)
     prep_working_dir(template_dir, working_dir, pdb_fn, chain, variant,
-                     rosetta_hparams["relax_distance"], rosetta_hparams["relax_repeats"], overwrite_wd=True)
+                     rosetta_hparams["relax_distance"], rosetta_hparams["relax_repeats"], overwrite_wd=True,
+                     additional_files_to_copy=additional_files_to_copy)
 
     # run the mutate and relax steps
     variant_has_mutations = False if variant == "_wt" else True
@@ -394,7 +412,8 @@ def main(args):
                 print("Running Rosetta on variant {} {} ({}/{})".format(basename(pdb_fn), variant,
                                                                         i + 1, len(pdbs_variants)), flush=True)
                 run_time = run_single_variant(args.rosetta_main_dir, pdb_fn, args.chain, variant, rosetta_hparams, staging_dir,
-                                              log_dir, args.save_wd)
+                                              log_dir, args.save_wd, args.custom_template_dir,args.additional_files_to_copy)
+
                 print("Processing variant {} {} took {:.2f}".format(basename(pdb_fn), variant, run_time), flush=True)
 
             except (RosettaError, FileNotFoundError) as e:
@@ -507,6 +526,18 @@ if __name__ == "__main__":
     parser.add_argument("--log_dir_base",
                         help="base output directory where log dirs for each run will be placed",
                         default="output/energize_outputs")
+
+
+    parser.add_argument("--custom_template_dir",
+                        help="directory for a template dir for a custom relax protocol",
+                        type=str,
+                        default=None)
+
+    parser.add_argument("--additional_files_to_copy",
+                        help="List of additional files to copy from a custom template dir",
+                        nargs="+",  # Accepts one or more arguments
+                        type=str,
+                        default=None)
 
     # HTCondor job information and program run information
     parser.add_argument("--cluster",

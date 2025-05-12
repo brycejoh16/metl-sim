@@ -1,0 +1,13 @@
+-s structure.pdb
+-parser:protocol mutate.xml
+-ignore_unrecognized_res
+-in:auto_setup_metals
+-extra_res_fa AKG.params
+-extra_res_fa NEU.params
+-ex1
+-ex2
+-no_optH false
+-flip_HNQ true
+-ignore_ligand_chi true
+-nstruct 1
+-out:file:scorefile mutate.sc

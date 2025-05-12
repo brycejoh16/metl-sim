@@ -1,0 +1,11 @@
+-s structure_0001.pdb
+-ignore_unrecognized_res
+-in:auto_setup_metals
+-extra_res_fa AKG.params
+-extra_res_fa NEU.params
+-ex1
+-ex2
+-no_optH false
+-flip_HNQ true
+-ignore_ligand_chi true
+-out:file:scorefile relax.sc
