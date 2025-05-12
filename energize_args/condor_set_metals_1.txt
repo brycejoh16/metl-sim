@@ -16,3 +16,5 @@ output/energize_outputs
 AKG.params
 NEU_conformers.pdb
 NEU.params
+--custom_template_dir
+templates/energize_metals_wd_template

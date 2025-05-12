@@ -1,11 +1,11 @@
 --run_type
 energize
 --run_name
-sadA_wt_relax_metals
+sadA_rosetta_relax_metals_singles_n_struct_1
 --energize_args_fn
 energize_args/condor_set_metals_1.txt
 --master_variant_fn
-variant_lists/SadA_rosetta_2024_3_6_p_wt.txt
+variant_lists/SadA_rosetta_2024_3_6_p_all_NS-1.txt
 --variants_per_job
 1
 --osdf_python_distribution
@@ -13,6 +13,6 @@ htcondor/templates/osdf_python_distribution.txt
 --osdf_rosetta_distribution
 htcondor/templates/osdf_rosetta_distribution.txt
 --github_tag
-0f271056adb5164bf8f5cf13d76af4751017737d
+
 --github_token
 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
