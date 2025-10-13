@@ -1,3 +1,0 @@
-osdf:///chtc/staging/bcjohnson7/rosetta_min_enc.tar.gz.aa
-osdf:///chtc/staging/bcjohnson7/rosetta_min_enc.tar.gz.ab
-osdf:///chtc/staging/bcjohnson7/rosetta_min_enc.tar.gz.ac
