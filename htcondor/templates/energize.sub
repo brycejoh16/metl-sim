@@ -6,6 +6,11 @@ log = output/condor_logs/rosetta_$(Cluster)_$(Process).log
 error = output/condor_logs/rosetta_$(Cluster)_$(Process).err
 output = output/condor_logs/rosetta_$(Cluster)_$(Process).out
 
+
+container_image = osdf:///chtc/staging/bcjohnson7/metl_sim.sif
+
+
+
 # rosetta provides the precompiled 64bit binaries for linux
 # has_avx is included because I think I ran into avx-related errors in the past
 # (GlideIN_Site =!= "FNAL") is meant to exclude the FNAL site because of problems
