@@ -171,17 +171,6 @@ def load_lines(fn):
     return lines
 
 
-def check_pass_file(pass_fn="htcondor/templates/pass.txt"):
-    """ check if the pass.txt file is still using the default password """
-
-    # load the contents
-    with open(pass_fn, "r") as f:
-        pass_contents = f.read().strip()
-
-    if pass_contents == "password":
-        warnings.warn("The pass.txt file is still using the default password. "
-                      "Please change the password in pass.txt to the one you used to encrypt Rosetta.")
-
 
 def prep_energize(args):
     """
@@ -232,8 +221,7 @@ def prep_energize(args):
     # copy over energize.sub and run.sh and the pass.txt
     # shutil.copy("htcondor/templates/energize.sub", out_dir)
     shutil.copy("htcondor/templates/run.sh", out_dir)
-    check_pass_file("htcondor/templates/pass.txt")
-    shutil.copy("htcondor/templates/pass.txt", out_dir)
+
 
     # copy over energize args and rename to standard filename
     shutil.copyfile(args.energize_args_fn, join(out_dir, "energize_args.txt"))
@@ -296,8 +284,6 @@ def prep_prepare(args):
     # copy over energize.sub and run.sh
     # shutil.copy("htcondor/templates/prepare.sub", out_dir)
     shutil.copy("htcondor/templates/run_prepare.sh", out_dir)
-    check_pass_file("htcondor/templates/pass.txt")
-    shutil.copy("htcondor/templates/pass.txt", out_dir)
 
     # copy over the pdb list (passed in as master_variant_fn)
     shutil.copyfile(args.master_variant_fn[0], join(out_dir, "pdb_list.txt"))
