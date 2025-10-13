@@ -45,17 +45,15 @@ def run_mutate_step(rosetta_scripts_bin_fn, database_path, working_dir):
     # shutil.copyfile("mutated_structures/mutate.sc", "output/variant_relaxed_score.sc")
 
 
-def run_docking_step(rosetta_scripts_bin_fn: str,
-                     database_path: str,
-                     num_structs: int,
+def run_docking_step(num_structs: int,
                      working_dir: str):
 
 
     in_structure_fn = "structure.pdb"
 
-
+    database_path = '/usr/local/database'
     dock_cmd = [
-        rosetta_scripts_bin_fn,
+        "rosetta_scripts",
         "-database", database_path,
         "-parser:protocol", "final_docking_2021.36+release.57ac713.xml",
         "-in:file:s",in_structure_fn,
@@ -85,15 +83,14 @@ def run_docking_step(rosetta_scripts_bin_fn: str,
         raise energize.RosettaError("Docking step did not execute successfully. Return code: {}".format(return_code))
 
 
-def run_docking_pipeline(rosetta_main_dir: str,
-                         working_dir: str,
+def run_docking_pipeline(working_dir: str,
                          num_structs: int):
 
     # keep track of how long it takes to run Rosetta
     all_start = time.time()
 
     # get the paths to the rosetta binaries and database
-    relax_bin_fn, rosetta_scripts_bin_fn, score_jd2_bin_fn, database_path = energize.get_rosetta_paths(rosetta_main_dir)
+    # relax_bin_fn, rosetta_scripts_bin_fn, score_jd2_bin_fn, database_path = energize.get_rosetta_paths(rosetta_main_dir)
 
     # run the mutate step
 
@@ -108,7 +105,7 @@ def run_docking_pipeline(rosetta_main_dir: str,
 
     # run docking step
     dock_start_time = time.time()
-    run_docking_step(rosetta_scripts_bin_fn, database_path, num_structs,
+    run_docking_step(num_structs,
                      working_dir)
     dock_run_time = time.time() - dock_start_time
 
@@ -217,9 +214,7 @@ def prep_working_dir(template_dir, working_dir, pdb_fn, chain, variant, overwrit
     # create the mutate.xml file
     gen_mutate_xml(variant, chain, working_dir,variant_has_mutations)
 
-
-def run_single_variant(rosetta_main_dir: str,
-                       pdb_fn: str,
+def run_single_variant( pdb_fn: str,
                        chain: str,
                        variant: str,
                        rosetta_hparams: dict,
@@ -241,8 +236,7 @@ def run_single_variant(rosetta_main_dir: str,
                      overwrite_wd=True)
 
 
-    run_times = run_docking_pipeline(rosetta_main_dir,
-                                     working_dir,
+    run_times = run_docking_pipeline(working_dir,
                                      rosetta_hparams["num_structs"])
 
     # parse the output files into a single-record csv, appending info about variant
@@ -250,7 +244,7 @@ def run_single_variant(rosetta_main_dir: str,
     # this selects the docking structure w/ the lowest dG_separated
     dock_df = energize.parse_score_sc(score_sc_fn=join(working_dir, "docked_structures", "docked_score.sc"),
                                       agg_method="min_energy_first",
-                                      sort_col="total_score")
+                                      sort_col="interface_delta_X")
 
     # no additional energies to concat... so just use the dock_df
     full_df = dock_df
@@ -329,8 +323,7 @@ def main(args):
             try:
                 print("Running Rosetta on variant {} {} ({}/{})".format(basename(pdb_fn), variant,
                                                                         i + 1, len(pdbs_variants)), flush=True)
-                run_time = run_single_variant(args.rosetta_main_dir,
-                                              pdb_fn,
+                run_time = run_single_variant( pdb_fn,
                                               args.chain,
                                               variant,
                                               rosetta_hparams,
@@ -396,12 +389,6 @@ if __name__ == "__main__":
         description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter,
         fromfile_prefix_chars="@")
-
-    # main input files
-    parser.add_argument("--rosetta_main_dir",
-                        help="path to the main directory of the rosetta distribution",
-                        type=str,
-                        default="rosetta_minimal")
 
     parser.add_argument("--variants_fn",
                         help="path to text file containing protein variants",

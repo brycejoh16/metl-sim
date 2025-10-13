@@ -1,2 +1,2 @@
-SadA_rosetta_2024_3_6_p.pdb M1A
-SadA_rosetta_2024_3_6_p.pdb M1C
+SadA_rosetta_2024_3_6_p.pdb R83A
+SadA_rosetta_2024_3_6_p.pdb E95A

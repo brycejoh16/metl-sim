@@ -1,0 +1,11 @@
+--run_type
+rosetta_ligand_sadA
+--run_name
+sadA_rosetta_ligand_interactive
+--energize_args_fn
+docking_args/sadA_docking_set_2.txt
+--master_variant_fn
+variant_lists/SadA_rosetta_2024_3_6_p_example.txt
+--variants_per_job
+3
+--github_tag

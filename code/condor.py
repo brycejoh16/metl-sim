@@ -226,8 +226,6 @@ def prep_energize(args):
 
     # fill in the template and save it
     fill_submit_template(template_fn="htcondor/templates/energize.sub",
-                         osdf_python_distribution=args.osdf_python_distribution,
-                         osdf_rosetta_distribution=args.osdf_rosetta_distribution,
                          additional_data_files=additional_files,
                          save_dir=out_dir)
 
@@ -246,8 +244,6 @@ def prep_energize(args):
 
 
 def fill_submit_template(template_fn: str,
-                         osdf_python_distribution: Optional[str],
-                         osdf_rosetta_distribution: Optional[str],
                          additional_data_files: Optional[list[str]],
                          save_dir: str):
 
@@ -255,17 +251,6 @@ def fill_submit_template(template_fn: str,
     template_str = "\n".join(template_lines)
 
     format_dict = {}
-
-    if osdf_python_distribution is not None and "{osdf_python_distribution}" in template_str:
-        # load the osdf python distribution files into a list
-        osdf_python_distribution_lines = load_lines(osdf_python_distribution)
-        # fill in the template with the osdf python distribution
-        format_dict["osdf_python_distribution"] = ", ".join(osdf_python_distribution_lines)
-
-    # same for Rosetta distribution
-    if osdf_rosetta_distribution is not None and "{osdf_rosetta_distribution}" in template_str:
-        osdf_rosetta_distribution_lines = load_lines(osdf_rosetta_distribution)
-        format_dict["osdf_rosetta_distribution"] = ", ".join(osdf_rosetta_distribution_lines)
 
     if additional_data_files is None:
         # if there are no additional data files, make it an empty list
@@ -305,8 +290,6 @@ def prep_prepare(args):
 
     # fill in the template and save it
     fill_submit_template(template_fn="htcondor/templates/prepare.sub",
-                         osdf_python_distribution=args.osdf_python_distribution,
-                         osdf_rosetta_distribution=args.osdf_rosetta_distribution,
                          additional_data_files=additional_files,
                          save_dir=out_dir)
 
@@ -466,15 +449,6 @@ if __name__ == "__main__":
                         type=int,
                         help="the number of variants per job")
 
-    parser.add_argument("--osdf_python_distribution",
-                        type=str,
-                        help="text file containing the OSDF paths to Python distribution files",
-                        default="htcondor/templates/osdf_python_distribution.txt")
-
-    parser.add_argument("--osdf_rosetta_distribution",
-                        type=str,
-                        help="text file containing the OSDF paths to Rosetta distribution files",
-                        default="htcondor/templates/osdf_rosetta_distribution.txt")
 
     parser.add_argument("--additional_data_files",
                         type=str,
