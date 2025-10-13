@@ -8,7 +8,6 @@ import os
 import sys
 from os.path import  join, basename
 import uuid
-import shortuuid
 import energize
 import time
 
