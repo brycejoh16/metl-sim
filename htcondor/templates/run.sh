@@ -69,4 +69,4 @@ fi
 
 # launch our python run script with argument file number
 echo "Launching ${PYSCRIPT}"
-python3 code/${PYSCRIPT} @energize_args.txt --variants_fn="args/${PROCESS}.txt" --cluster="$CLUSTER" --process="$PROCESS" --commit_id="$GITHUB_TAG" --save_wd
+python3 code/${PYSCRIPT} @energize_args.txt --variants_fn="${PROCESS}.txt" --cluster="$CLUSTER" --process="$PROCESS" --commit_id="$GITHUB_TAG" --save_wd
