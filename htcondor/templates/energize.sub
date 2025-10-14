@@ -1,4 +1,4 @@
-universe = vanilla
+universe = container
 +WantFlocking = true
 +WantGlideIn = true
 
@@ -10,7 +10,6 @@ output = output/condor_logs/rosetta_$(Cluster)_$(Process).out
 container_image = osdf:///chtc/staging/bcjohnson7/metl_sim.sif
 
 
-
 # rosetta provides the precompiled 64bit binaries for linux
 # has_avx is included because I think I ran into avx-related errors in the past
 # (GlideIN_Site =!= "FNAL") is meant to exclude the FNAL site because of problems
@@ -20,7 +19,7 @@ executable = run.sh
 should_transfer_files = YES
 when_to_transfer_output = ON_EXIT
 
-transfer_input_files = run.sh, code.tar.gz, args/$(Process).txt, energize_args.txt, {transfer_input_files}
+transfer_input_files = run.sh, code.tar.gz, args.tar.gz, energize_args.txt, {transfer_input_files}
 transfer_output_files = output
 
 request_cpus = 1

@@ -3,7 +3,6 @@
 import argparse
 import subprocess
 import shutil
-import base64,re
 import os
 import sys
 from os.path import isdir, join, basename, abspath
@@ -11,6 +10,8 @@ import uuid
 import socket
 import csv
 import platform
+
+import shortuuid
 import numpy as np
 import pandas as pd
 
@@ -366,8 +367,7 @@ def main(args):
     script_start = time.time()
 
     # generate a unique identifier for this run
-    uid = base64.urlsafe_b64encode(uuid.uuid4().bytes).decode('ascii')
-    job_uuid = re.sub(r'[^A-Za-z0-9]', '', uid)[:12]
+    job_uuid = shortuuid.encode(uuid.uuid4())[:12]
 
     # create the log directory for this job
     log_dir = join(args.log_dir_base, get_log_dir_name(args, job_uuid, script_start))

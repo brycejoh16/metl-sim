@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 
-CODE_FN=code.tar.gz
 
 # exit if any command fails...
 set -e
+
+CODE_FN=code.tar.gz
+
 
 # create output directory for condor logs early
 # not sure exactly when/if this needs to be done
@@ -18,8 +20,15 @@ echo "Cluster: $CLUSTER"
 echo "Process: $PROCESS"
 echo "RunningOn: $RUNNINGON"
 
+# now that we are using aptainer we need to start initializing conda
+. /opt/conda/etc/profile.d/conda.sh
+conda activate metl-sim
+
+
 # this makes it easier to set up the environments, since the PWD we are running in is not $HOME
 export HOME=$PWD
+
+
 
 # combine any split tar files into a single file (this will probably just be the rosetta distribution)
 if [ "$(ls 2>/dev/null -Ubad1 -- *.tar.gz.* | wc -l)" -gt 0 ];
@@ -57,6 +66,7 @@ then
   done
 fi
 
+
 # launch our python run script with argument file number
 echo "Launching ${PYSCRIPT}"
-python3 code/${PYSCRIPT} @energize_args.txt --variants_fn="${PROCESS}.txt" --cluster="$CLUSTER" --process="$PROCESS" --commit_id="$GITHUB_TAG"
+python3 code/${PYSCRIPT} @energize_args.txt --variants_fn="args/${PROCESS}.txt" --cluster="$CLUSTER" --process="$PROCESS" --commit_id="$GITHUB_TAG" --save_wd
