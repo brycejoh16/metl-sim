@@ -9,4 +9,4 @@ variant_lists/SadA_rosetta_2024_3_6_p_example.txt
 --variants_per_job
 3
 --github_tag
-3f1aa6b4be3fe7230a1683d7c7fce306cdaf372b
+fa15d72427706df88ace4f368f66184c69dc95fb
