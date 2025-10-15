@@ -6,7 +6,7 @@ from Bio.SeqIO.PdbIO import AtomIterator
 import numpy as np
 from matplotlib import pyplot as plt
 import seaborn as sns
-from scipy.stats import gaussian_kde
+from scipy.stats import gaussian_kde,spearmanr
 from matplotlib.patches import Rectangle
 
 CHARS = ["A", "C", "D", "E", "F", "G", "H", "I", "K", "L",
@@ -35,63 +35,67 @@ def get_seq_from_pdb(pdb_fn):
 
 
 
-import numpy as np
-import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
-from scipy.stats import gaussian_kde
 
 def parity_plot(x, y, x_label='x', y_label='y', save_path=None, title=None):
     """
     Create a density-colored parity plot from two pandas Series.
     Ensures tight x/y limits with a small margin so points are visible.
+    Displays Spearman correlation coefficient on the plot.
     """
     # Drop missing values
     valid = ~(x.isna() | y.isna())
     x = x[valid]
     y = y[valid]
 
-    # Compute KDE density for color
+    # --- Compute Spearman correlation ---
+    spearman_rho, _ = spearmanr(x, y)
+
+    # --- Compute KDE density for coloring ---
     xy = np.vstack([x, y])
     kde = gaussian_kde(xy)
     density = kde(xy)
-
-    # Normalize density for coloring
     hue_values = (density - density.min()) / (density.max() - density.min())
 
-    # Set up JointGrid manually for better control
+    # --- Set up JointGrid manually for better control ---
     g = sns.JointGrid(x=x, y=y, space=0, height=6)
     g.plot_joint(sns.scatterplot, c=hue_values, cmap='viridis', s=20, alpha=0.6, edgecolor='none')
     g.plot_marginals(sns.histplot, kde=True, color='gray')
 
-    # Add parity line
+    # --- Add parity line ---
     min_val = min(x.min(), y.min())
     max_val = max(x.max(), y.max())
     g.ax_joint.plot([min_val, max_val], [min_val, max_val], 'k--', lw=1)
 
-    # Compute limits with small wiggle (~2%)
+    # --- Compute limits with small wiggle (~2%) ---
     buffer = 0.02 * (max_val - min_val)
     g.ax_joint.set_xlim(min_val - buffer, max_val + buffer)
     g.ax_joint.set_ylim(min_val - buffer, max_val + buffer)
 
-    # Grid and labels
+    # --- Grid, labels, and title ---
     g.ax_joint.grid(True, color='lightgrey', linestyle='-', linewidth=0.5, alpha=0.7)
     g.ax_joint.set_xlabel(x_label, fontsize=14)
     g.ax_joint.set_ylabel(y_label, fontsize=14)
     g.ax_joint.tick_params(axis='both', labelsize=12)
-
-    # Title
     if title:
         g.ax_joint.set_title(title, fontsize=14)
 
-    # Tight layout
-    plt.tight_layout()
+    # --- Add Spearman correlation text block ---
+    text_x = min_val + 0.05 * (max_val - min_val)
+    text_y = max_val - 0.1 * (max_val - min_val)
+    g.ax_joint.text(
+        text_x, text_y,
+        f"Spearman ρ = {spearman_rho:.3f}",
+        fontsize=12, color='black',
+        bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor="gray", alpha=0.7)
+    )
 
-    # Save figure if requested
+    # --- Tight layout and save ---
+    plt.tight_layout()
     if save_path:
         g.fig.savefig(save_path, dpi=300, bbox_inches='tight')
 
     return g.fig
+
 
 
 
