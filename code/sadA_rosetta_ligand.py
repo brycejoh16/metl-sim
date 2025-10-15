@@ -185,8 +185,7 @@ def prep_working_dir(template_dir, working_dir, pdb_fn, chain, variant, overwrit
     shutil.copyfile(pdb_fn, join(working_dir, "structure.pdb"))
 
     # copy over files from the template dir that don't need to be changed
-    files_to_copy = ["temp_2021.36+release.57ac713.xml",
-                     "AKG.params","NEU.params","NEU_conformers.pdb"]
+    files_to_copy = os.listdir(template_dir)
 
     for fn in files_to_copy:
         shutil.copy(join(template_dir, fn), working_dir)
