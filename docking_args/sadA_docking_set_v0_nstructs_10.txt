@@ -1,0 +1,6 @@
+--pdb_dir
+pdb_files/prepared_pdb_files
+--log_dir_base
+output/energize_outputs
+--template_dir
+templates/v0_protocol_nstructs_10

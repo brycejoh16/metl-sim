@@ -36,6 +36,28 @@ python code/sadA_rosetta_ligand.py --save_wd --log_dir_base rosetta_ligand_proto
 
 Great! It is making both of the mutations. Now I can start making changes! 
 
+## Experiments to run:
+
+- protocols.qsar.scoring_grid.GridManager: [ WARNING ] option -qsar:grid_dir is not set.  Use this flag to specify a directory to store scoring grids.  This will save you a huge amount of time
+
+- Lowest interface delta X 
+- Clustering 
+- Increasing the ligand radius for the HighResolutionDocker 
+- FastRelax with constraints
+
+- Transform or no transform 
+- Conformers or no conformers for the NSL 
+- Number of Nstructs  
+
+
+
+
+Where I left of Oct 13 , 2025 
+
+I have to still get the container working CHTC again. I can't seem to figure it out. But the 
+aptainer wouldn't let me run it in an interactive environment. Will need to open up an issue. 
+
+
 
 ## Increasing 
 

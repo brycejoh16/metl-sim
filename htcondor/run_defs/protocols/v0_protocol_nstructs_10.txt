@@ -1,14 +1,13 @@
 --run_type
 rosetta_ligand_sadA
 --run_name
-sadA_rosetta_ligand_v0_protocol
+sadA_rosetta_ligand_v0_protocol_nstructs_10
 --out_dir
 output/htcondor_runs/v0_protocol
 --energize_args_fn
-docking_args/sadA_docking_set_2.txt
+docking_args/sadA_docking_set_v0_nstructs_10.txt
 --master_variant_fn
 variant_lists/SadA_rosetta_2024_3_6_p_all_NS-1_two_replicates.txt
 --variants_per_job
 5
 --github_tag
-1a6fbeaa1fd6e3722944e816b0c5047266c68f32
