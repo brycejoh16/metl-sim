@@ -252,6 +252,11 @@ def main(args):
                 os.makedirs(processed_run_dir)
                 process_run(main_dir, condor_log_dir, energize_out_dir, processed_run_dir)
 
+
+            if args.make_single_variant_replicate_analysis:
+                import protocol_analysis as pa
+                pa.make_single_variant_replicate_analysis(processed_run_dir)
+
         elif args.mode == "database":
             processed_run_dir = join(main_dir, "processed_run")
             energize_out_dir = join(main_dir, "output", "energize_outputs")
@@ -285,6 +290,11 @@ if __name__ == "__main__":
                         help="for mode 'database', the database to add the run to",
                         type=str,
                         default=None)
+
+    parser.add_argument("--make_single_variant_replicate_analysis",
+                        help="set this flag to true if you have two replicates of all single variants in a run "
+                             "and want to run a post process analysis. Useful for exploring different protocols.",
+                        action="store_true")
 
     main(parser.parse_args())
 

@@ -230,7 +230,10 @@ def load_multi_job_results(energize_out_d):
         try:
             edf = pd.read_csv(energies_fn)
             jdf = pd.read_csv(job_fn, index_col=0, header=None).T
-            hdf = pd.read_csv(hparam_fn, index_col=0, header=None).T
+            if os.path.getsize(hparam_fn) > 0:
+                hdf = pd.read_csv(hparam_fn, index_col=0, header=None).T
+            else:
+                hdf = pd.DataFrame()
         except (pd.errors.EmptyDataError, pd.errors.ParserError) as e:
             print("Ran into an unexpected error parsing {}: {}".format(jd, e))
             skipped.append(jd)
