@@ -386,7 +386,8 @@ if __name__ == "__main__":
                         default="pdb_files/prepared_pdb_files")
 
     parser.add_argument("--template_dir",
-                        help="directory containing the protocol files which will be used for this rosetta ligand docking",
+                        help="directory containing the protocol files which will be used for this rosetta ligand docking"
+                             "must define all files, and xml file must be dock.xml with flag file options_dock.txt",
                         type=str,
                         default="templates/sadA_rosetta_ligand_template")
 
