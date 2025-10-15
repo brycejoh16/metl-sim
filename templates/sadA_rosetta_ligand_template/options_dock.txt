@@ -7,9 +7,6 @@
 	-file
 		-extra_res_fa AKG.params
 		-extra_res_fa NEU.params
--out
-	-path
-		-all docked_structures
 
 #the packing options allow Rosetta to sample additional rotamers for
 #protein sidechain angles chi 1 (ex1) and chi 2 (ex2)
