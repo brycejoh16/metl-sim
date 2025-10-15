@@ -187,7 +187,7 @@ def prep_energize(args):
     else:
         raise ValueError("Invalid run type: {}".format(args.run_type))
 
-    out_dir = join("output", "htcondor_runs", get_run_dir_name(args.run_name))
+    out_dir = join(args.out_dir, get_run_dir_name(args.run_name))
     os.makedirs(out_dir)
 
     # save the arguments for this condor run as run_def.txt in the log directory
@@ -455,5 +455,10 @@ if __name__ == "__main__":
     parser.add_argument("--github_token",
                         type=str,
                         help="authorization token for private metl-sim repository")
+
+    parser.add_argument("--out_dir",
+                        type=str,
+                        help="out dir for the condor run",
+                        default="output/htcondor_runs")
 
     main(parser.parse_args())
