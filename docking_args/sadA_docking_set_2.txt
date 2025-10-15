@@ -2,5 +2,3 @@
 pdb_files/prepared_pdb_files
 --log_dir_base
 output/energize_outputs
---num_structs
-1

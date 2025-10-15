@@ -5,7 +5,6 @@
 
 -in
 	-file
-#		-s Mutant_directories/Mutants1/temp.pdb
 		-extra_res_fa AKG.params
 		-extra_res_fa NEU.params
 -out
@@ -25,15 +24,13 @@
 	-flip_HNQ true
 	-ignore_ligand_chi true
 
+# set up and run the metals
+-in:auto_setup_metals
 
-#parser:protocol locates the XML file for RosettaScripts
-
--parser
-	-protocol SadA_mutant_dock.xml
+# nstruct is going out of the protocol because we need more power over the protocol
+-nstruct 1
 
 #overwrite allows Rosetta to write over previous structures and scores
-
--overwrite
 
 #Ligand docking is not yet benchmarked with the updated scoring function
 #This flag restores certain parameters to previously published values

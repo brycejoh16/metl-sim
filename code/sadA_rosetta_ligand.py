@@ -45,36 +45,20 @@ def run_mutate_step(rosetta_scripts_bin_fn, database_path, working_dir):
     # shutil.copyfile("mutated_structures/mutate.sc", "output/variant_relaxed_score.sc")
 
 
-def run_docking_step(num_structs: int,
-                     working_dir: str):
+def run_docking_step(working_dir: str):
 
 
     in_structure_fn = "structure.pdb"
 
     database_path = '/usr/local/database'
-    dock_cmd = [
-        "rosetta_scripts",
+    dock_cmd = ["rosetta_scripts",
         "-database", database_path,
-        "-parser:protocol", "final_docking_2021.36+release.57ac713.xml",
+        "-parser:protocol", "final_dock.xml",
         "-in:file:s",in_structure_fn,
-        "-restore_pre_talaris_2013_behavior", "true",
-        "-in:auto_setup_metals",
-        "-extra_res_fa", "AKG.params",
-        "-extra_res_fa", "NEU.params",
-        "-ex1",
-        "-ex2",
-        "-no_optH", "false",
-        "-flip_HNQ", "true",
-        "-ignore_ligand_chi", "true",
-        "-nstruct",  str(num_structs),
         "-out:overwrite",
         "-out:path:all", "docked_structures",
         "-out:file:scorefile", "docked_score.sc",
-    ]
-
-        # not 100% sure if sameer's docking script requires different args for WT
-        # either way, WT is not supported for docking at the moment...
-        # raise NotImplementedError("This function doesn't support the WT yet")
+        "@options_dock.txt"]
 
     dock_out_fn = join(working_dir, "dock.out")
     with open(dock_out_fn, "w") as f:
@@ -83,8 +67,7 @@ def run_docking_step(num_structs: int,
         raise energize.RosettaError("Docking step did not execute successfully. Return code: {}".format(return_code))
 
 
-def run_docking_pipeline(working_dir: str,
-                         num_structs: int):
+def run_docking_pipeline(working_dir: str):
 
     # keep track of how long it takes to run Rosetta
     all_start = time.time()
@@ -105,8 +88,7 @@ def run_docking_pipeline(working_dir: str,
 
     # run docking step
     dock_start_time = time.time()
-    run_docking_step(num_structs,
-                     working_dir)
+    run_docking_step(working_dir)
     dock_run_time = time.time() - dock_start_time
 
     # keep track of how long it takes to run all steps
@@ -121,9 +103,9 @@ def run_docking_pipeline(working_dir: str,
     return run_times
 
 
-def gen_mutate_xml(variant, chain, working_dir,variant_has_mutations):
+def gen_mutate_xml(variant, chain, working_dir,variant_has_mutations,template_dir):
 
-    template_fn = "templates/sadA_rosetta_ligand_template/temp_2021.36+release.57ac713.xml"
+    template_fn = join(template_dir,"dock.xml")
 
     aa_map = {
         "A": "ALA", "C": "CYS", "D": "ASP", "E": "GLU", "F": "PHE", "G": "GLY",
@@ -165,7 +147,7 @@ def gen_mutate_xml(variant, chain, working_dir,variant_has_mutations):
         protocols_placeholders="\n".join(protocols)
     )
 
-    with open(f'{working_dir}/final_docking_2021.36+release.57ac713.xml','w') as f:
+    with open(f'{working_dir}/final_dock.xml','w') as f:
         f.write(filled_template)
 
 
@@ -212,7 +194,7 @@ def prep_working_dir(template_dir, working_dir, pdb_fn, chain, variant, overwrit
     variant_has_mutations = False if variant == "_wt" else True
 
     # create the mutate.xml file
-    gen_mutate_xml(variant, chain, working_dir,variant_has_mutations)
+    gen_mutate_xml(variant, chain, working_dir,variant_has_mutations,template_dir)
 
 def run_single_variant( pdb_fn: str,
                        chain: str,
@@ -221,11 +203,12 @@ def run_single_variant( pdb_fn: str,
                        working_dir: str,
                        staging_dir: str,
                        output_dir: str,
+                       template_dir : str,
                        save_wd: bool = False):
 
     start_time = time.time()
 
-    template_dir = "templates/sadA_rosetta_ligand_template"
+    # template_dir = "templates/sadA_rosetta_ligand_template"
 
     # set up the working directory (copies the pdb file, sets up the rosetta scripts, etc.)
     prep_working_dir(template_dir,
@@ -236,8 +219,7 @@ def run_single_variant( pdb_fn: str,
                      overwrite_wd=True)
 
 
-    run_times = run_docking_pipeline(working_dir,
-                                     rosetta_hparams["num_structs"])
+    run_times = run_docking_pipeline(working_dir)
 
     # parse the output files into a single-record csv, appending info about variant
     # place in a staging directory and combine with other variants that run during this job
@@ -292,7 +274,7 @@ def main(args):
     energize.save_job_info(script_start, job_uuid, args.cluster, args.process, args.commit_id, log_dir)
 
     # create a dictionary of just rosetta hyperparameters that can be passed around throughout functions and saved
-    rosetta_hparams = {"num_structs": args.num_structs}
+    rosetta_hparams = {}
     energize.save_csv_from_dict(join(log_dir, "hparams.csv"), rosetta_hparams)
 
     # load the variants that will be processed with this run
@@ -329,7 +311,7 @@ def main(args):
                                               rosetta_hparams,
                                               working_dir,
                                               staging_dir,
-                                              log_dir, args.save_wd)
+                                              log_dir,args.template_dir ,args.save_wd)
                 print("Processing variant {} {} took {:.2f}".format(basename(pdb_fn), variant, run_time), flush=True)
 
             except (energize.RosettaError, FileNotFoundError) as e:
@@ -404,16 +386,21 @@ if __name__ == "__main__":
                         type=str,
                         default="pdb_files/prepared_pdb_files")
 
+    parser.add_argument("--template_dir",
+                        help="directory containing the protocol files which will be used for this rosetta ligand docking",
+                        type=str,
+                        default="templates/sadA_rosetta_ligand_template")
+
     parser.add_argument("--allowable_failure_fraction",
                         help="fraction of variants that can fail but still consider this job successful",
                         type=float,
                         default=0.25)
 
     # rosetta hyperparameters
-    parser.add_argument("--num_structs",
-                        help="number of structures",
-                        type=int,
-                        default=1)
+    # parser.add_argument("--num_structs",
+    #                     help="number of structures",
+    #                     type=int,
+    #                     default=1)
 
     # logging and output options
     parser.add_argument("--save_wd",
