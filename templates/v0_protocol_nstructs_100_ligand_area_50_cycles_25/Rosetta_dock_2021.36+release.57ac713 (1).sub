@@ -1,0 +1,27 @@
+# template.sub
+# starter submit file for CHTC jobs
+
+universe = vanilla
+log = Log/job_$(Cluster).log
+error = Error/job_$(Cluster)_$(Process).err
+output = Out/job_$(Cluster)_$(Process).out
+
+arguments =  $(pos) $(mut)
+executable = dock.sh
+
+should_transfer_files = YES
+when_to_transfer_output = ON_EXIT
+
+transfer_input_files = SadA_NSLeu_Corrected_3701_best_structure_0044_correct_seq.pdb, NEU_conformers.pdb, NEU.params, AKG.params, dock.sh, constraint_QM_A.cst, mut_list.txt, temp.xml, mutate_dock_relax.xml
+
+
+transfer_output_remaps = "SadA_NSLeu_Corrected_3701_best_structure_0044_correct_seq_0001.pdb  = Output/SadX_$(pos)$(mut).pdb ; score.sc  = Score/score_$(pos)$(mut).sc "
+
+
+
+
+request_cpus = 1
+request_memory = 5GB
+request_disk = 5GB
+
+queue pos,mut from mut_list.txt
