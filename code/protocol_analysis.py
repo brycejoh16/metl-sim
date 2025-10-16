@@ -44,6 +44,7 @@ def parity_plot(x, y, x_label='x', y_label='y', save_path=None, title=None):
     """
     # Drop missing values
     valid = ~(x.isna() | y.isna())
+    print("Omitting: ", sum(~valid), " values from parity plot")
     x = x[valid]
     y = y[valid]
 
@@ -217,6 +218,95 @@ def plot_weights_heatmap(df, save_fn, wildtype_seq, positions_per_row=100):
 
 
 
+import pandas as pd
+from Bio import PDB
+import re
+
+def parse_pdb(pdb_file):
+    """Parse the PDB and return residues with chain and position."""
+    parser = PDB.PDBParser(QUIET=True)
+    structure = parser.get_structure("protein", pdb_file)
+
+    residues = []
+    for model in structure:
+        for chain in model:
+            for residue in chain:
+                if PDB.is_aa(residue, standard=True):
+                    residues.append((chain.id, residue.id[1], residue))
+    return residues
+
+def load_mutational_data(df):
+    """Load mutational effect scores from the CSV."""
+    df['position'] = df.index.to_series().apply(lambda x: int(x[1:-1]))
+    avg_effects = (df.groupby('position')['interface_delta_X'].mean()-df['interface_delta_X'].mean()).to_dict()
+    return avg_effects
+
+def assign_b_factors(residues, avg_effects):
+    """Assign the average mutational effect to the B-factor field of each residue."""
+    for chain_id, pos, residue in residues:
+        effect = avg_effects.get(pos, 0.0)  # Default to 0.0 if no data
+        for atom in residue:
+            atom.bfactor = effect # Store effect in the B-factor field
+    return residues
+
+
+from Bio import PDB
+
+
+def save_new_pdb(structure, output_file):
+    """Save the modified PDB with new B-factors and a PyMOL remark."""
+    io = PDB.PDBIO()
+    io.set_structure(structure)
+    io.save(output_file)
+
+    # Insert remark at the top of the file
+    with open(output_file, "r+") as f:
+        content = f.read()
+        f.seek(0, 0)
+        f.write("REMARK  spectrum b, blue_white_red, minimum=-5, maximum=5\n" + content)
+
+
+def save_new_pdb_image(out_fn, structure):
+    from pymol import cmd
+
+    # Start PyMOL without GUI
+    cmd.reinitialize()
+
+    # Load your structure
+    cmd.load(structure)
+
+    # Apply your spectrum command
+    cmd.spectrum("b", "blue_white_red", minimum=-5, maximum=5)
+
+    # Set a nice representation
+    cmd.show("cartoon")
+    cmd.bg_color("white")
+
+    # Zoom and save the image
+    cmd.zoom()
+    cmd.ray(1200, 900)
+    cmd.png(out_fn, width=1200, height=900, dpi=300, ray=1)
+
+    # Optional: quit PyMOL (only needed in batch scripts)
+    # cmd.quit()
+
+
+def docked_on_struct_heatmap(pdb_file, df, output_pdb):
+    # Parse the PDB and load mutational data
+    residues = parse_pdb(pdb_file)
+    avg_effects = load_mutational_data(df)
+
+    # Assign B-factors based on the mutational effect
+    residues=assign_b_factors(residues, avg_effects)
+
+    # Save the new PDB with modified B-factors
+    structure = residues[0][2].get_parent().get_parent()  # Get the top structure object
+    save_new_pdb(structure, output_pdb)
+    print(f"Modified PDB saved as: {output_pdb}")
+
+
+
+
 def make_single_variant_replicate_analysis(out_dir):
     df=pd.read_csv(join(out_dir,'energies_df.csv'))
     pdb_file =join('pdb_files','prepared_pdb_files',df['pdb_fn'][0])
@@ -245,6 +335,8 @@ def make_single_variant_replicate_analysis(out_dir):
     #ordering should be the same but just in case
     df1['interface_delta_X_2'] = df2['interface_delta_X']
 
+
+
     parity_plot(df1['interface_delta_X'],df1['interface_delta_X_2'],x_label='Replicate 1',y_label='Replicate 2',
                 # title=f"interface_delta_X across replicates for protocol\n"
                 #       f"{'_'.join(out_dir.split('/')[-2].split('_')[4:])}",
@@ -253,11 +345,18 @@ def make_single_variant_replicate_analysis(out_dir):
     heatmap_df1= plot_weights_heatmap(df1, save_fn=join(out_dir,'heatmap_replicate_1.png'),
                         wildtype_seq=wt_seq, positions_per_row=100)
 
+    out_pdb=join(out_dir, "replicate_1_bsplines_docked_on_struct.pdb")
+    docked_on_struct_heatmap(pdb_file, heatmap_df1, output_pdb=out_pdb)
+    save_new_pdb_image(join(out_dir, "replicate_1_bsplines_docked_on_struct.png"), out_pdb)
 
     df1.to_csv(join(out_dir,'replicate_1.csv'),index=True,index_label='variant')
 
     heatmap_df2=plot_weights_heatmap(df2, save_fn=join(out_dir, 'heatmap_replicate_2.png'),
                          wildtype_seq=wt_seq, positions_per_row=100)
+
+    out_pdb=join(out_dir, "replicate_2_bspline_docked_on_struct.pdb")
+    docked_on_struct_heatmap(pdb_file, heatmap_df2, output_pdb=out_pdb)
+    save_new_pdb_image(join(out_dir,"replicate_2_bsplines_docked_on_struct.png"), out_pdb)
 
     df2.to_csv(join(out_dir, 'replicate_2.csv'), index=True,index_label='variant')
 
