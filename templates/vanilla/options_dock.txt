@@ -22,7 +22,7 @@
 	-flip_HNQ true
 
 
--nstruct 200
+-nstruct 1
 
 #parser:protocol locates the XML file for RosettaScripts
 
