@@ -5,21 +5,23 @@ import subprocess
 import shutil
 import os
 import sys
-from os.path import  join, basename
+from os.path import join, basename
 import uuid
+
+import numpy as np
 import shortuuid
 import energize
 import time
+from utils import get_seq_from_pdb
+from templates import gen_res_selector_str
 
 
 def run_mutate_step(rosetta_scripts_bin_fn, database_path, working_dir):
-
     # the input structure is assumed to be "structure.pdb"
     # setting this up is handled in the prep_working_dir() function
     structure_fn = "structure.pdb"
 
     # note that options_mutate.txt specifies an output directory of "mutated_structures"
-
 
     mutate_cmd = [rosetta_scripts_bin_fn,
                   '-database', database_path,
@@ -33,7 +35,7 @@ def run_mutate_step(rosetta_scripts_bin_fn, database_path, working_dir):
     # to completely void output, can direct it to subprocess.DEVNULL instead of f
     with open(mutate_out_fn, "w") as f:
         return_code = subprocess.call(mutate_cmd, cwd=working_dir, stdout=f, stderr=f)
-    
+
     # the output of this script is "mutated_structures/structure_0001.pdb" 
     if return_code != 0:
         raise energize.RosettaError("Mutate step did not execute successfully. Return code: {}".format(return_code))
@@ -46,19 +48,17 @@ def run_mutate_step(rosetta_scripts_bin_fn, database_path, working_dir):
 
 
 def run_docking_step(working_dir: str):
-
-
     in_structure_fn = "structure.pdb"
 
     database_path = '/usr/local/database'
     dock_cmd = ["rosetta_scripts",
-        "-database", database_path,
-        "-parser:protocol", "final_dock.xml",
-        "-in:file:s",in_structure_fn,
-        "-out:overwrite",
-        "-out:path:all", "docked_structures",
-        "-out:file:scorefile", "docked_score.sc",
-        "@options_dock.txt"]
+                "-database", database_path,
+                "-parser:protocol", "final_dock.xml",
+                "-in:file:s", in_structure_fn,
+                "-out:overwrite",
+                "-out:path:all", "docked_structures",
+                "-out:file:scorefile", "docked_score.sc",
+                "@options_dock.txt"]
 
     dock_out_fn = join(working_dir, "dock.out")
     with open(dock_out_fn, "w") as f:
@@ -68,7 +68,6 @@ def run_docking_step(working_dir: str):
 
 
 def run_docking_pipeline(working_dir: str):
-
     # keep track of how long it takes to run Rosetta
     all_start = time.time()
 
@@ -103,9 +102,8 @@ def run_docking_pipeline(working_dir: str):
     return run_times
 
 
-def gen_mutate_xml(variant, chain, working_dir,variant_has_mutations,template_dir):
-
-    template_fn = join(template_dir,"dock.xml")
+def gen_mutate_xml(variant, chain, working_dir, variant_has_mutations, template_dir,seq_length):
+    template_fn = join(template_dir, "dock.xml")
 
     aa_map = {
         "A": "ALA", "C": "CYS", "D": "ASP", "E": "GLU", "F": "PHE", "G": "GLY",
@@ -117,11 +115,13 @@ def gen_mutate_xml(variant, chain, working_dir,variant_has_mutations,template_di
     variants = variant.split(',')
     idxs = []
     mutate_residue_blocks = []
-    mutate_residue_movers = []
     protocols = []
 
+    ## generate the resnums to be used in the selector for mutations
 
     if variant_has_mutations:
+        resnum_str = gen_res_selector_str(variant)
+        print("resnum str: ",resnum_str)
         for i, v in enumerate(variants, 1):
             if len(v) < 3:
                 raise ValueError(f"ERROR: length(variant) < 3 : {v}")
@@ -133,23 +133,26 @@ def gen_mutate_xml(variant, chain, working_dir,variant_has_mutations,template_di
             # mutate_residue_movers.append(f'<Add mover_name="mutant{i}"/>')
             protocols.append(f'<Add mover_name="mutant{i}"/>')
 
-
     else:
         # if the input is _wt then just add some more spaces, we don't mutate
         # or add in a mover
+        # and we select all residues during the minimization.
         protocols = [" ", " "]
         mutate_residue_blocks = [" ", " "]
+        resnum_str = ",".join([str(i + 1) for i in np.arange(seq_length)])
+        print("resnum str: ",resnum_str)
 
     with open(template_fn, 'r') as template_file:
         template = template_file.read()
+
     filled_template = template.format(
         mutate_residue_placeholders="\n".join(mutate_residue_blocks),
-        protocols_placeholders="\n".join(protocols)
+        protocols_placeholders="\n".join(protocols),
+        resnums_str_placeholder=resnum_str
     )
 
-    with open(f'{working_dir}/final_dock.xml','w') as f:
+    with open(f'{working_dir}/final_dock.xml', 'w') as f:
         f.write(filled_template)
-
 
 
 def prep_working_dir(template_dir, working_dir, pdb_fn, chain, variant, overwrite_wd=False):
@@ -192,19 +195,24 @@ def prep_working_dir(template_dir, working_dir, pdb_fn, chain, variant, overwrit
 
     variant_has_mutations = False if variant == "_wt" else True
 
-    # create the mutate.xml file
-    gen_mutate_xml(variant, chain, working_dir,variant_has_mutations,template_dir)
+    seq_length=len(get_seq_from_pdb(pdb_fn))
 
-def run_single_variant( pdb_fn: str,
+    # create the mutate.xml file
+    gen_mutate_xml(variant, chain, working_dir, variant_has_mutations, template_dir,
+                   seq_length)
+
+
+
+
+def run_single_variant(pdb_fn: str,
                        chain: str,
                        variant: str,
                        rosetta_hparams: dict,
                        working_dir: str,
                        staging_dir: str,
                        output_dir: str,
-                       template_dir : str,
+                       template_dir: str,
                        save_wd: bool = False):
-
     start_time = time.time()
 
     # template_dir = "templates/sadA_rosetta_ligand_template"
@@ -216,7 +224,6 @@ def run_single_variant( pdb_fn: str,
                      chain,
                      variant,
                      overwrite_wd=True)
-
 
     run_times = run_docking_pipeline(working_dir)
 
@@ -254,7 +261,6 @@ def run_single_variant( pdb_fn: str,
 
 
 def main(args):
-
     # rough script start time for logging
     # this will be logged in UTC time (GM time) in the log directory name and output files
     script_start = time.time()
@@ -304,13 +310,13 @@ def main(args):
             try:
                 print("Running Rosetta on variant {} {} ({}/{})".format(basename(pdb_fn), variant,
                                                                         i + 1, len(pdbs_variants)), flush=True)
-                run_time = run_single_variant( pdb_fn,
+                run_time = run_single_variant(pdb_fn,
                                               args.chain,
                                               variant,
                                               rosetta_hparams,
                                               working_dir,
                                               staging_dir,
-                                              log_dir,args.template_dir ,args.save_wd)
+                                              log_dir, args.template_dir, args.save_wd)
                 print("Processing variant {} {} took {:.2f}".format(basename(pdb_fn), variant, run_time), flush=True)
 
             except (energize.RosettaError, FileNotFoundError) as e:
