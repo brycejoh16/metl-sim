@@ -3,7 +3,7 @@ rosetta_ligand_sadA
 --run_name
 sadA_rosetta_ligand_v1_ligand+mutate_area_example
 --out_dir
-output/htcondor_runs/v1_ligand+mutate_area
+output/htcondor_runs/v1_ligand+mutate_area_example
 --energize_args_fn
 docking_args/sadA_docking_set_v1_ligand+mutate_area.txt
 --master_variant_fn
@@ -11,4 +11,4 @@ variant_lists/SadA_rosetta_2024_3_6_p_example.txt
 --variants_per_job
 3
 --github_tag
-dfd59fe3b1aa1fe8f3c971e338ebddc4a1a67a0f
+093fccfe5f4650a7ecb65f945f19cd5351263bb9
