@@ -121,7 +121,7 @@ def gen_mutate_xml(variant, chain, working_dir, variant_has_mutations, template_
 
     if variant_has_mutations:
         resnum_str = gen_res_selector_str(variant)
-        print("resnum str: ",resnum_str)
+        # print("resnum str: ",resnum_str)
         for i, v in enumerate(variants, 1):
             if len(v) < 3:
                 raise ValueError(f"ERROR: length(variant) < 3 : {v}")
@@ -140,7 +140,7 @@ def gen_mutate_xml(variant, chain, working_dir, variant_has_mutations, template_
         protocols = [" ", " "]
         mutate_residue_blocks = [" ", " "]
         resnum_str = ",".join([str(i + 1) for i in np.arange(seq_length)])
-        print("resnum str: ",resnum_str)
+        # print("resnum str: ",resnum_str)
 
     with open(template_fn, 'r') as template_file:
         template = template_file.read()
