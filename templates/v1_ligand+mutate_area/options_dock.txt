@@ -30,4 +30,5 @@
 #Ligand docking is not yet benchmarked with the updated scoring function
 #This flag restores certain parameters to previously published values
 
-
+-mistakes
+	-restore_pre_talaris_2013_behavior true
