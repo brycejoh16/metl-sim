@@ -9,8 +9,8 @@
 
 		<LIGAND_AREAS>
 			<LigandArea name="inhibitor_dock_sc" chain="X" cutoff="6.0" add_nbr_radius="true" all_atom_mode="false"/>
-			<LigandArea name="inhibitor_final_sc" chain="X" cutoff="10000.0" add_nbr_radius="true" all_atom_mode="false"/>
-			<LigandArea name="inhibitor_final_bb" chain="X" cutoff="10000.0" add_nbr_radius="false" all_atom_mode="true" Calpha_restraints="0.3"/>
+			<LigandArea name="inhibitor_final_sc" chain="X" cutoff="12.0" add_nbr_radius="true" all_atom_mode="false"/>
+			<LigandArea name="inhibitor_final_bb" chain="X" cutoff="15.0" add_nbr_radius="false" all_atom_mode="true" Calpha_restraints="0.3"/>
 		</LIGAND_AREAS>
 		<INTERFACE_BUILDERS>
 			<InterfaceBuilder name="side_chain_for_docking" ligand_areas="inhibitor_dock_sc"/>
