@@ -1,0 +1,14 @@
+--run_type
+rosetta_ligand_sadA
+--run_name
+sadA_rosetta_ligand_v1_ligand+mutate_area_no_low_res_FastRelax
+--out_dir
+output/htcondor_runs/v1_ligand+mutate_area_no_low_res_FastRelax
+--energize_args_fn
+docking_args/sadA_docking_set_v1_ligand+mutate_area_no_low_res_FastRelax.txt
+--master_variant_fn
+variant_lists/SadA_rosetta_2024_3_6_p_all_NS-1_two_replicates.txt
+--variants_per_job
+3
+--github_tag
+3a9b7be0db67fc2efd78d15a204c8c7be8012ee4
