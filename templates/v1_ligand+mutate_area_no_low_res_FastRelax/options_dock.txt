@@ -20,7 +20,7 @@
 	-no_optH false
 	-flip_HNQ true
 
--nstruct 1
+-nstruct 25
 #parser:protocol locates the XML file for RosettaScripts
 
 #overwrite allows Rosetta to write over previous structures and scores

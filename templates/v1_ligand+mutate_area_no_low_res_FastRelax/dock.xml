@@ -71,7 +71,6 @@
         <Add mover_name="relax"/>
         <Add mover_name="clear_restraints"/>
 
-
         <Add mover_name="high_res_docker"/>
         <Add mover_name="add_ca_restraints"/>
         <Add mover_name="final"/>
