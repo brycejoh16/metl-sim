@@ -1,0 +1,22 @@
+<ROSETTASCRIPTS>
+  <SCOREFXNS>
+          <ScoreFunction name="hard_rep" weights="ligand" />
+  </SCOREFXNS>
+  <MOVERS>
+    <!-- take residue 55 in chain A and mutate it to an Alanine (A)-->
+    {mutate_residue_placeholders}
+    <FastRelax name="relax"
+               scorefxn="hard_rep"
+               disable_design="true"
+               repeats="5"
+               cartesian="false"
+               />
+  </MOVERS>
+  <PROTOCOLS>
+    <!-- make sure to add a new mover for each new mutant-->
+    {protocols_placeholders}
+    <Add mover_name="relax"/>
+  </PROTOCOLS>
+  <OUTPUT scorefxn="hard_rep"/>
+</ROSETTASCRIPTS>
+
