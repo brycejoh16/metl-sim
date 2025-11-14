@@ -1,0 +1,59 @@
+<ROSETTASCRIPTS>
+    <SCOREFXNS>
+        <ScoreFunction name="ligand_soft_rep" weights="ligand_soft_rep" />
+        <ScoreFunction name="hard_rep" weights="ligand" />
+    </SCOREFXNS>
+
+    <RESIDUE_SELECTORS>
+        <Neighborhood name="ligand_proximity_selector" distance="18.0">
+            <Chain chains="X"/>
+        </Neighborhood>
+        
+        <Index name="mutation_site_center" resnums="{resnums_str_placeholder}"/>
+        
+        <Neighborhood name="mutation_proximity_selector" distance="10.0" selector="mutation_site_center" />
+        
+        <Or name="final_sc_selector" selectors="ligand_proximity_selector,mutation_proximity_selector" />
+        
+        <Neighborhood name="final_bb_selector" distance="6.0">
+            <Chain chains="X"/>
+        </Neighborhood>
+    </RESIDUE_SELECTORS>
+
+    <LIGAND_AREAS>
+        <LigandArea name="inhibitor_dock_sc" chain="X" cutoff="6.0" add_nbr_radius="true" all_atom_mode="false"/>
+    </LIGAND_AREAS>
+    <INTERFACE_BUILDERS>
+        <InterfaceBuilder name="side_chain_for_docking" ligand_areas="inhibitor_dock_sc"/>
+    </INTERFACE_BUILDERS>
+    <MOVEMAP_BUILDERS>
+        <MoveMapBuilder name="docking_movemap" sc_interface="side_chain_for_docking" minimize_water="false"/>
+    </MOVEMAP_BUILDERS>
+    <MOVE_MAP_FACTORIES>
+        <MoveMapFactory name="final_mm_factory" bb="0" chi="0">
+            <Backbone residue_selector="final_bb_selector" />
+            <Chi residue_selector="final_sc_selector" />
+        </MoveMapFactory>
+    </MOVE_MAP_FACTORIES>
+    <SCORINGGRIDS ligand_chain="X" width="25.0">
+        <ClassicGrid grid_name="classic" weight="1.0"/>
+    </SCORINGGRIDS>
+    <MOVERS>
+<!--        <Transform name="transform" chain="X" box_size="10.0" move_distance="1.0" angle="15" cycles="1000" repeats="1" temperature="1.0" />-->
+        <HighResDocker name="high_res_docker" cycles="100" repack_every_Nth="3" scorefxn="ligand_soft_rep" movemap_builder="docking_movemap"/>
+        <AddConstraints name="add_ca_restraints">
+            <CoordinateConstraintGenerator name="coord_cst_gen" residue_selector="final_bb_selector" sd="0.5" />
+        </AddConstraints>
+        <ClearConstraintsMover name="clear_restraints" />
+        <MinMover name="final" scorefxn="hard_rep" movemap_factory="final_mm_factory" />
+        <InterfaceScoreCalculator name="add_scores" chains="X" scorefxn="hard_rep"/>
+    </MOVERS>
+    <PROTOCOLS>
+<!--        <Add mover_name="transform"/>-->
+        <Add mover_name="high_res_docker"/>
+        <Add mover_name="add_ca_restraints"/>
+        <Add mover_name="final"/>
+        <Add mover_name="clear_restraints"/>
+        <Add mover_name="add_scores"/>
+    </PROTOCOLS>
+</ROSETTASCRIPTS>
