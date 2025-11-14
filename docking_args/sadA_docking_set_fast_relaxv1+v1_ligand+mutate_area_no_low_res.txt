@@ -3,5 +3,5 @@ pdb_files/prepared_pdb_files
 --log_dir_base
 output/energize_outputs
 --template_dir
-templates/v1_ligand+mutate_area_no_low_res_FastRelax_seperate
+templates/fast_relaxv1+v1_ligand+mutate_area_no_low_res
 --fast_relax
