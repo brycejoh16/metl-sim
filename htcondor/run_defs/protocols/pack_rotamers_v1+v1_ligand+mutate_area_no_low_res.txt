@@ -1,0 +1,14 @@
+--run_type
+rosetta_ligand_sadA
+--run_name
+sadA_rosetta_ligand_pack_rotamers_v1+v1_ligand+mutate_area_no_low_res
+--out_dir
+output/htcondor_runs/pack_rotamers_v1+v1_ligand+mutate_area_no_low_res
+--energize_args_fn
+docking_args/sadA_docking_set_pack_rotamers_v1+v1_ligand+mutate_area_no_low_res.txt
+--master_variant_fn
+variant_lists/SadA_rosetta_2024_3_6_p_all_NS-1_two_replicates.txt
+--variants_per_job
+3
+--github_tag
+52408f4be43d886b0a2512c1433bf56890facfdb
