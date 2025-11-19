@@ -1,0 +1,7 @@
+--pdb_dir
+pdb_files/prepared_pdb_files
+--log_dir_base
+output/energize_outputs
+--template_dir
+templates/large_wt_dock_v3_ligand+mutate_area_no_low_res
+--save_structure

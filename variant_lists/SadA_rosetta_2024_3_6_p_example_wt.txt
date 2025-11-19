@@ -1,0 +1,3 @@
+SadA_rosetta_2024_3_6_p.pdb R83A
+SadA_rosetta_2024_3_6_p.pdb _wt
+SadA_rosetta_2024_3_6_p.pdb _wt
