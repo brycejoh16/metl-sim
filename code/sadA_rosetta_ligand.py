@@ -47,20 +47,18 @@ def run_mutate_step(rosetta_scripts_bin_fn, database_path, working_dir):
     # shutil.copyfile("mutated_structures/mutate.sc", "output/variant_relaxed_score.sc")
 
 
-def run_docking_step(working_dir: str,fast_relax:bool):
+def run_docking_step(working_dir: str, fast_relax: bool):
     in_structure_fn = "structure.pdb"
     database_path = '/usr/local/database'
 
-
-
     if fast_relax:
         relax_cmd = ["rosetta_scripts",
-                    "-database", database_path,
-                    "-parser:protocol", "final_relax.xml",
-                    "-in:file:s", in_structure_fn,
-                    "-out:overwrite",
-                    "-out:file:scorefile", "relax_score.sc",
-                    "@options_relax.txt"]
+                     "-database", database_path,
+                     "-parser:protocol", "final_relax.xml",
+                     "-in:file:s", in_structure_fn,
+                     "-out:overwrite",
+                     "-out:file:scorefile", "relax_score.sc",
+                     "@options_relax.txt"]
 
         # run the relax command
         relax_out_fn = join(working_dir, "relax.out")
@@ -72,11 +70,6 @@ def run_docking_step(working_dir: str,fast_relax:bool):
 
         # change the in structure_fn becuase it now has changed
         in_structure_fn = "structure_0001.pdb"
-
-
-
-
-
 
     dock_cmd = ["rosetta_scripts",
                 "-database", database_path,
@@ -94,7 +87,7 @@ def run_docking_step(working_dir: str,fast_relax:bool):
         raise energize.RosettaError("Docking step did not execute successfully. Return code: {}".format(return_code))
 
 
-def run_docking_pipeline(working_dir: str,fast_relax):
+def run_docking_pipeline(working_dir: str, fast_relax):
     # keep track of how long it takes to run Rosetta
     all_start = time.time()
 
@@ -112,13 +105,10 @@ def run_docking_pipeline(working_dir: str,fast_relax):
     # else:
     #     raise NotImplementedError("This function doesn't support the WT yet")
 
-
-
-
     # run docking step
     dock_start_time = time.time()
 
-    run_docking_step(working_dir,fast_relax)
+    run_docking_step(working_dir, fast_relax)
     dock_run_time = time.time() - dock_start_time
 
     # keep track of how long it takes to run all steps
@@ -133,7 +123,7 @@ def run_docking_pipeline(working_dir: str,fast_relax):
     return run_times
 
 
-def gen_mutate_xml(variant, chain, working_dir, variant_has_mutations, template_dir,seq_length,
+def gen_mutate_xml(variant, chain, working_dir, variant_has_mutations, template_dir, seq_length,
                    fast_relax):
     template_fns = [join(template_dir, "dock.xml")]
     final_fns = ["final_dock.xml"]
@@ -141,7 +131,6 @@ def gen_mutate_xml(variant, chain, working_dir, variant_has_mutations, template_
     if fast_relax:
         template_fns.append(join(template_dir, "relax.xml"))
         final_fns.append("final_relax.xml")
-
 
     aa_map = {
         "A": "ALA", "C": "CYS", "D": "ASP", "E": "GLU", "F": "PHE", "G": "GLY",
@@ -180,8 +169,7 @@ def gen_mutate_xml(variant, chain, working_dir, variant_has_mutations, template_
         resnum_str = ",".join([str(i + 1) for i in np.arange(seq_length)])
         # print("resnum str: ",resnum_str)
 
-
-    for template_fn,final_fn in zip(template_fns,final_fns):
+    for template_fn, final_fn in zip(template_fns, final_fns):
         with open(template_fn, 'r') as template_file:
             template = template_file.read()
 
@@ -191,11 +179,11 @@ def gen_mutate_xml(variant, chain, working_dir, variant_has_mutations, template_
             resnums_str_placeholder=resnum_str
         )
 
-        with open(join(working_dir,final_fn), 'w') as f:
+        with open(join(working_dir, final_fn), 'w') as f:
             f.write(filled_template)
 
 
-def prep_working_dir(template_dir, working_dir, pdb_fn, chain, variant, overwrite_wd=False,fast_relax=False):
+def prep_working_dir(template_dir, working_dir, pdb_fn, chain, variant, overwrite_wd=False, fast_relax=False):
     """ prep the working directory by copying over files from the template directory, modifying as needed """
 
     # delete the current working directory if one exists
@@ -235,13 +223,11 @@ def prep_working_dir(template_dir, working_dir, pdb_fn, chain, variant, overwrit
 
     variant_has_mutations = False if variant == "_wt" else True
 
-    seq_length=len(get_seq_from_pdb(pdb_fn))
+    seq_length = len(get_seq_from_pdb(pdb_fn))
 
     # create the mutate.xml file
     gen_mutate_xml(variant, chain, working_dir, variant_has_mutations, template_dir,
-                   seq_length,fast_relax)
-
-
+                   seq_length, fast_relax)
 
 
 def run_single_variant(pdb_fn: str,
@@ -253,7 +239,8 @@ def run_single_variant(pdb_fn: str,
                        output_dir: str,
                        template_dir: str,
                        save_wd: bool = False,
-                       fast_relax:bool= False):
+                       fast_relax: bool = False,
+                       save_structure:bool=False):
     start_time = time.time()
 
     # template_dir = "templates/sadA_rosetta_ligand_template"
@@ -267,14 +254,16 @@ def run_single_variant(pdb_fn: str,
                      overwrite_wd=True,
                      fast_relax=fast_relax)
 
-    run_times = run_docking_pipeline(working_dir,fast_relax=fast_relax)
+    run_times = run_docking_pipeline(working_dir, fast_relax=fast_relax)
 
     # parse the output files into a single-record csv, appending info about variant
     # place in a staging directory and combine with other variants that run during this job
     # this selects the docking structure w/ the lowest dG_separated
-    dock_df = energize.parse_score_sc(score_sc_fn=join(working_dir, "docked_structures", "docked_score.sc"),
-                                      agg_method="min_energy_first",
-                                      sort_col="interface_delta_X")
+    dock_df, structure_idx = energize.parse_score_sc(
+        score_sc_fn=join(working_dir, "docked_structures", "docked_score.sc"),
+        agg_method="min_energy_first",
+        sort_col="interface_delta_X",
+        return_structure_idx=True)
 
     # no additional energies to concat... so just use the dock_df
     full_df = dock_df
@@ -295,6 +284,15 @@ def run_single_variant(pdb_fn: str,
     # these go directly to the output directory instead of the staging directory
     if save_wd:
         shutil.copytree(working_dir, join(output_dir, "wd_{}_{}".format(basename(pdb_fn), variant)))
+    if save_structure:
+        input_structure = 'structure.pdb'
+        if fast_relax:
+            input_structure = 'structure_0001.pdb'
+
+        shutil.copyfile(join(working_dir,'docked_structures',f"{input_structure}_{structure_idx}.pdb"),
+                        join(output_dir, "wd_{}_{}".format(basename(pdb_fn), variant),'docked_structures',
+                             f"{input_structure}_{structure_idx}.pdb"))
+
 
     # clean up the working dir in preparation for next variant
     shutil.rmtree(working_dir)
@@ -364,7 +362,7 @@ def main(args):
                                               rosetta_hparams,
                                               working_dir,
                                               staging_dir,
-                                              log_dir, args.template_dir, args.save_wd,args.fast_relax)
+                                              log_dir, args.template_dir, args.save_wd, args.fast_relax,args.save_structure)
                 print("Processing variant {} {} took {:.2f}".format(basename(pdb_fn), variant, run_time), flush=True)
 
             except (energize.RosettaError, FileNotFoundError) as e:
@@ -376,6 +374,7 @@ def main(args):
                 # if we are supposed to save the working directory, save it now
                 # the run_single_variant() function doesn't take care of this when there's an exception
                 # todo: if we end up using variant-specific working dir, update here
+
                 if args.save_wd:
                     shutil.copytree(working_dir,
                                     join(log_dir, "wd_{}_{}_{}".format(basename(pdb_fn), variant, attempt)))
@@ -452,12 +451,18 @@ if __name__ == "__main__":
 
     # rosetta hyperparameters
     parser.add_argument("--fast_relax",
-                        help="whether to run fast relax before docking",
+                        help="whether to run fast relax scripts before docking (default: false)",
                         action="store_true")
 
     # logging and output options
     parser.add_argument("--save_wd",
                         help="set this flag to save the full working directory for each variant",
+                        action="store_true")
+
+    # output flag
+    parser.add_argument("--save_structure",
+                        help="set this flag to save the best structure found for each variant (if "
+                             "nstructs > 1 it will only save best structure).",
                         action="store_true")
 
     parser.add_argument("--log_dir_base",

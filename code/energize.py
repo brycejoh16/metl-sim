@@ -200,36 +200,62 @@ def run_rosetta_pipeline(rosetta_main_dir: str,
 
 def parse_score_sc(score_sc_fn: str,
                    agg_method: str = "avg",
-                   sort_col: str = "total_score"):
+                   sort_col: str = "total_score",
+                   return_structure_idx :bool=False):
     """ parse the score.sc file from the energize run, aggregating energies and appending info about variant
         this function has also been co-opted to parse the centroid and filter score files, which should only
         have 1 possible record, so no need to do any agg (and it shouldn't) """
-    score_df = pd.read_csv(score_sc_fn, delim_whitespace=True, skiprows=1, header=0)
+
+    with open(score_sc_fn, 'r') as inFile:
+        first_line = inFile.readline().strip()
+    if first_line == 'SEQUENCE:':
+        score_df = pd.read_csv(score_sc_fn, delim_whitespace=True, skiprows=1, header=0)
+    else:
+        score_df = pd.read_csv(score_sc_fn, delim_whitespace=True, header=0)
 
     # drop the "SCORE:" and "description" columns, these won't be needed for final output
+
     score_df = score_df.drop(["SCORE:", "description"], axis=1)
 
     # special case: only 1 structure was generated, no need to aggregate
     if len(score_df) == 1:
         parsed_df = score_df.iloc[[0]]
+        idx ='0001'
     else:
         if agg_method == "min_energy_avg":
             # select the structure(s) with the minimum total_score and average the energies if multiple structures
             # we average just in case there are some structures with the same min total_score but different energies
             min_score_df = score_df[score_df[sort_col] == score_df[sort_col].min()]
+
+            # lets just take the first of this min_score_df as our final index structure
+            idx = f"{min_score_df.index[0]+1:04d}"
+
             parsed_df = min_score_df.mean(axis=0).to_frame().T
+            # min
         elif agg_method == "min_energy_first":
             # select structures with min total_score and use the first one
             min_score_df = score_df[score_df[sort_col] == score_df[sort_col].min()]
+
             parsed_df = min_score_df.iloc[[0]]
+            idx = f"{parsed_df.index[0]+1:04d}"
+
+
+            # for min energy first, we do the index of the structure with the lowest energy
         elif agg_method == "avg":
             # take the average of all structures, not just the ones with the lowest score
             parsed_df = score_df.mean(axis=0).to_frame().T
+            # for index let's just do the first for average
+            idx = f"{parsed_df.index[0]+1:04d}"
+
+
         else:
             raise ValueError("invalid aggregation method: {}".format(agg_method))
 
-    return parsed_df
+    parsed_df = parsed_df.reset_index(drop=True)
 
+    if return_structure_idx:
+        return parsed_df,idx
+    return parsed_df
 
 def run_single_variant(rosetta_main_dir, pdb_fn, chain, variant, rosetta_hparams,
                        staging_dir, output_dir, save_wd=False,
