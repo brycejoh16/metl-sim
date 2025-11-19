@@ -285,12 +285,15 @@ def run_single_variant(pdb_fn: str,
     if save_wd:
         shutil.copytree(working_dir, join(output_dir, "wd_{}_{}".format(basename(pdb_fn), variant)))
     if save_structure:
-        input_structure = 'structure.pdb'
+        input_structure = 'structure'
         if fast_relax:
-            input_structure = 'structure_0001.pdb'
+            input_structure = 'structure_0001'
+
+        destination_dir  =  join(output_dir,"wd_{}_{}".format(basename(pdb_fn), variant),'docked_structures')
+        os.makedirs(destination_dir, exist_ok=True)
 
         shutil.copyfile(join(working_dir,'docked_structures',f"{input_structure}_{structure_idx}.pdb"),
-                        join(output_dir, "wd_{}_{}".format(basename(pdb_fn), variant),'docked_structures',
+                        join(destination_dir,
                              f"{input_structure}_{structure_idx}.pdb"))
 
 
