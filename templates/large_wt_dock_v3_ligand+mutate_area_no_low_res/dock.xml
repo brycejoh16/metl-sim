@@ -41,7 +41,7 @@
     <MOVERS>
         {mutate_residue_placeholders}
 <!--        <Transform name="transform" chain="X" box_size="10.0" move_distance="1.0" angle="15" cycles="1000" repeats="1" temperature="1.0" />-->
-        <HighResDocker name="high_res_docker" cycles="300" repack_every_Nth="3" scorefxn="ligand_soft_rep" movemap_builder="docking_movemap"/>
+        <HighResDocker name="high_res_docker" cycles="600" repack_every_Nth="3" scorefxn="ligand_soft_rep" movemap_builder="docking_movemap"/>
         <AddConstraints name="add_ca_restraints">
             <CoordinateConstraintGenerator name="coord_cst_gen" residue_selector="final_bb_selector" sd="0.5" />
         </AddConstraints>
