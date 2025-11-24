@@ -1,0 +1,14 @@
+--run_type
+rosetta_ligand_sadA
+--run_name
+sadA_rosetta_ligand_large_wt_dock_v3_ligand+mutate_area_no_low_res
+--out_dir
+output/htcondor_runs/large_wt_dock_v3_ligand+mutate_area_no_low_res
+--energize_args_fn
+docking_args/sadA_docking_set_large_wt_dock_v3_ligand+mutate_area_no_low_res.txt
+--master_variant_fn
+variant_lists/SadA_rosetta_2024_3_6_p_wt_5000.txt
+--variants_per_job
+1
+--github_tag
+c19520ab3a488162792291c1f3d20f4e77fdfe89
