@@ -1,0 +1,19 @@
+<ROSETTASCRIPTS>
+
+		<SCOREFXNS>
+		</SCOREFXNS>
+
+		<MOVERS>
+			<MutateResidue name="mutant1" target="1A" new_res="ASP"/>
+
+
+
+		</MOVERS>
+		<PROTOCOLS>
+			<Add mover_name="mutant1"/>
+
+
+		</PROTOCOLS>
+
+
+</ROSETTASCRIPTS>

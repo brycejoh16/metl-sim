@@ -1,0 +1,88 @@
+<ROSETTASCRIPTS>
+    <SCOREFXNS>
+        <ScoreFunction name="ligand_soft_rep" weights="ligand_soft_rep" />
+        <ScoreFunction name="hard_rep" weights="ligand" />
+    </SCOREFXNS>
+
+    <RESIDUE_SELECTORS>
+        <!-- 1. Define Metal Binding Residues (Assuming Chain A based on context, adjust if needed) -->
+        <Index name="metal_residues" resnums="155,157,246"/>
+        <Not name="not_metal_res" selector="metal_residues"/>
+
+        <!-- 2. Existing Selectors -->
+        <Neighborhood name="ligand_proximity_selector" distance="18.0">
+            <Chain chains="X"/>
+        </Neighborhood>
+        
+        <Index name="mutation_site_center" resnums="{resnums_str_placeholder}"/>
+        
+        <Neighborhood name="mutation_proximity_selector" distance="10.0" selector="mutation_site_center" />
+        
+        <!-- 3. Modified SC Selector: (Ligand OR Mutation) AND (NOT Metal) -->
+        <Or name="pre_final_sc_selector" selectors="ligand_proximity_selector,mutation_proximity_selector" />
+        <And name="final_sc_selector" selectors="pre_final_sc_selector,not_metal_res"/>
+        
+        <!-- 4. Modified BB Selector: (Ligand Neighbors) AND (NOT Metal) -->
+        <Neighborhood name="pre_final_bb_selector" distance="6.0">
+            <Chain chains="X"/>
+        </Neighborhood>
+        <And name="final_bb_selector" selectors="pre_final_bb_selector,not_metal_res"/>
+    </RESIDUE_SELECTORS>
+
+    <TASKOPERATIONS>
+        <!-- Prevent repacking (rotamer changes) for metal residues -->
+        <OperateOnResidueSubset name="prevent_metal_repacking" selector="metal_residues">
+            <PreventRepackingRLT/>
+        </OperateOnResidueSubset>
+    </TASKOPERATIONS>
+
+    <LIGAND_AREAS>
+        <LigandArea name="inhibitor_dock_sc" chain="X" cutoff="6.0" add_nbr_radius="true" all_atom_mode="false"/>
+    </LIGAND_AREAS>
+    
+    <INTERFACE_BUILDERS>
+        <InterfaceBuilder name="side_chain_for_docking" ligand_areas="inhibitor_dock_sc"/>
+    </INTERFACE_BUILDERS>
+    
+    <MOVEMAP_BUILDERS>
+        <MoveMapBuilder name="docking_movemap" sc_interface="side_chain_for_docking" minimize_water="false"/>
+    </MOVEMAP_BUILDERS>
+    
+    <MOVE_MAP_FACTORIES>
+        <!-- MoveMap will now exclude metals because final selectors exclude them -->
+        <MoveMapFactory name="final_mm_factory" bb="0" chi="0">
+            <Backbone residue_selector="final_bb_selector" />
+            <Chi residue_selector="final_sc_selector" />
+        </MoveMapFactory>
+    </MOVE_MAP_FACTORIES>
+    
+    <SCORINGGRIDS ligand_chain="X" width="25.0">
+        <ClassicGrid grid_name="classic" weight="1.0"/>
+    </SCORINGGRIDS>
+    
+    <MOVERS>
+        {mutate_residue_placeholders}
+        <!-- Added task_operations to HighResDocker to ensure metals are not repacked during docking moves -->
+        <HighResDocker name="high_res_docker" cycles="100" repack_every_Nth="3" scorefxn="ligand_soft_rep" movemap_builder="docking_movemap" task_operations="prevent_metal_repacking"/>
+        
+        <AddConstraints name="add_ca_restraints">
+            <CoordinateConstraintGenerator name="coord_cst_gen" residue_selector="final_bb_selector" sd="0.5" />
+        </AddConstraints>
+        
+        <ClearConstraintsMover name="clear_restraints" />
+        
+        <!-- MinMover uses final_mm_factory which excludes metals -->
+        <MinMover name="final" scorefxn="hard_rep" movemap_factory="final_mm_factory" />
+        
+        <InterfaceScoreCalculator name="add_scores" chains="X" scorefxn="hard_rep"/>
+    </MOVERS>
+    
+    <PROTOCOLS>
+        {protocols_placeholders}
+        <Add mover_name="high_res_docker"/>
+        <Add mover_name="add_ca_restraints"/>
+        <Add mover_name="final"/>
+        <Add mover_name="clear_restraints"/>
+        <Add mover_name="add_scores"/>
+    </PROTOCOLS>
+</ROSETTASCRIPTS>
