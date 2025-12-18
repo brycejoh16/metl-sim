@@ -20,6 +20,7 @@
 	-no_optH false
 	-flip_HNQ true
 
+-resfile constraints.resfile
 -nstruct 200
 #parser:protocol locates the XML file for RosettaScripts
 
