@@ -5,9 +5,10 @@ sadA_rosetta_ligand_v1_ligand+mutate_area_no_low_res_nstruct_10_cluster_ex
 --out_dir
 output/htcondor_runs/v1_ligand+mutate_area_no_low_res_nstruct_10_cluster_ex
 --energize_args_fn
-docking_args/sadA_docking_set_v1_ligand+mutate_area_no_low_res_nstruct_10_cluster_ex.txt
+docking_args/sadA_docking_set_v1_ligand+mutate_area_no_low_res_nstruct_10_cluster.txt
 --master_variant_fn
-variant_lists/SadA_rosetta_2024_3_6_p_all_NS-1_two_replicates.txt
+variant_lists/SadA_rosetta_2024_3_6_p_example.txt
 --variants_per_job
 3
 --github_tag
+9ac48d06ae5c4fb70c547b7a2cb3392b75e7d9b0

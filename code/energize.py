@@ -206,6 +206,10 @@ def parse_score_sc(score_sc_fn: str,
         this function has also been co-opted to parse the centroid and filter score files, which should only
         have 1 possible record, so no need to do any agg (and it shouldn't) """
 
+
+    # todo: first need to make sure this is reading from the working directory
+    #   if it is, then read from that directory
+    #
     with open(score_sc_fn, 'r') as inFile:
         first_line = inFile.readline().strip()
     if first_line == 'SEQUENCE:':
