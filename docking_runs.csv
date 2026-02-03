@@ -1,0 +1,28 @@
+﻿run_name,Docking Name,Prior to Docking,Nstructs,Low Resolution Docker ,Cycles (HRD),Radius (HRD),Side Chain Radius (FM),"Side Chain Radius
+ from Mutation (FM)",Backbone Radius (FM),Final Minimizer Function ,in:auto_metals_setup,ignore_ligand_chi,Extra Notes 
+v0_protocol,DirectDock-Metals-LowSampling,,1,No,6,6,6,,7,FinalMinimizer,TRUE,TRUE,
+v0_protocol_100,DirectDock-Metals,,100,No,6,6,6,,7,FinalMinimizer,TRUE,TRUE,
+v0_protocol_nstructs_100_FinalMin_all_atom,DirectDock-Metals-GlobalMin,,100,No,100,6,12,,15,FinalMinimizer,TRUE,TRUE,
+v0_protocol_nstructs_100_FinalMin_all_atom_metals_setup_false,DirectDock-NoMetals-GlobalMin,,100,No,100,6,12,,15,FinalMinimizer,FALSE,TRUE,
+v0_protocol_nstructs_100_ligand_area_15,DirectDock-Metals-GlobalDock,,100,No,6,15,15,,15,FinalMinimizer,TRUE,TRUE,
+vanilla,DirectDock-NoMetals,,200,No,100,6,6,,7,FinalMinimizer,FALSE,False ,"NSL Rotamers generated
+ during simulation"
+v1_ligand+mutate_area,LigMut-LowRes-Standard,,200,Yes,100,6,18,10,6,MinMover with Calpha Constraints,FALSE,False ,
+v1_ligand+mutate_area_nstruct_1000,LigMut-LowRes-HighSampling,,1000,Yes,100,6,18,10,6,MinMover with Calpha Constraints,FALSE,False ,
+v1_ligand+mutate_area_no_low_res,LigMut-NoLowRes-Standard,,200,No,100,6,18,10,6,MinMover with Calpha Constraints,FALSE,False ,
+v1_ligand+mutate_area_no_low_res_MinMover_all,LigMut-NoLowRes-GlobalMin,,200,No,100,6,18,1000,1000,MinMover with Calpha Constraints,FALSE,False ,
+pack_rotamers_v1+v1_ligand+mutate_area_no_low_res,LigMut-NoLowRes-PackFirst,"Do pack rotamers first as recommended by https://meilerlab.org/wp-content/uploads/2022/02/rosetta3_ligand_docking.pdf (step 3)
+After making mutation",200,No,100,6,18,10,6,MinMover with Calpha Constraints,FALSE,False ,"Do pack rotamers first as recommended by https://meilerlab.org/wp-content/uploads/2022/02/rosetta3_ligand_docking.pdf (step 3)
+After making mutation"
+fast_relaxv1+v1_ligand+mutate_area_no_low_res,LigMut-NoLowRes-FastRelax,"Instead of packing rotamers after mutation, do a fast relax before running rosetta ligand. ",200,No,100,6,18,10,6,MinMover with Calpha Constraints,FALSE,False ,"Instead of packing rotamers after mutation, do a fast relax before running rosetta ligand. "
+large_dock_mutants_v3_ligand+mutate_area_no_low_res,LigMut-NoLowRes-HighCompute,"For the prepare step, instead of 10 nstructs 
+run 500,000 nstruct and select the structure
+with lowest interface_delta_X as starting 
+wildtype structure. (Goal is to reduce compute 
+on mutate step.) 
+",200,No,100,6,18,10,6,MinMover with Calpha Constraints,FALSE,False ,"For the prepare step, instead of 10 nstructs 
+run 500,000 nstruct and select the structure
+with lowest interface_delta_X as starting 
+wildtype structure. (Goal is to reduce compute 
+on mutate step.) 
+"
