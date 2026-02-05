@@ -1,0 +1,13 @@
+--run_type
+rosetta_ligand_sadA
+--run_name
+sadA_rosetta_ligand_v1_ligand+mutate_area_no_low_res_nstruct_100_5k_doubles
+--out_dir
+output/htcondor_runs/docking_feb_2026_run
+--energize_args_fn
+docking_args/sadA_docking_set_v1_ligand+mutate_area_no_low_res_nstruct_100.txt
+--master_variant_fn
+variant_lists/rosetta_ligand_feb_2026_run/sadA_test_doubles_20260205_135905/selected/k2.txt
+--variants_per_job
+1
+--github_tag

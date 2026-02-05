@@ -1,0 +1,16 @@
+--input_file
+variant_lists/SadA_rosetta_2024_3_6_p_subvariants_TN-2M_MAXS-5_MINS-2_filtered-DB-0-SadA_rosetta_2024_3_6_p_RS-571300726.txt
+--parent_out_dir
+output/mutation_subset
+--run_name
+sadA_test_doubles
+--k_range
+1-2
+--n
+5000
+--random
+--seed
+42
+--completed
+variant_lists/SadA_rosetta_2024_3_6_p_all_NS-1.txt
+variant_lists/rosetta_ligand_feb_2026_run/sadA_test_doubles_20260205_132820/selected/k2.txt
