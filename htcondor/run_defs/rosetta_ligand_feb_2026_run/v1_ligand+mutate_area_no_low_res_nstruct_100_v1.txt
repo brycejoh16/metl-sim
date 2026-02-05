@@ -1,0 +1,13 @@
+--run_type
+rosetta_ligand_sadA
+--run_name
+sadA_rosetta_ligand_v1_ligand+mutate_area_no_low_res_nstruct_100
+--out_dir
+output/htcondor_runs/v1_ligand+mutate_area_no_low_res_nstruct_100
+--energize_args_fn
+docking_args/sadA_docking_set_v1_ligand+mutate_area_no_low_res_nstruct_100.txt
+--master_variant_fn
+
+--variants_per_job
+1
+--github_tag
