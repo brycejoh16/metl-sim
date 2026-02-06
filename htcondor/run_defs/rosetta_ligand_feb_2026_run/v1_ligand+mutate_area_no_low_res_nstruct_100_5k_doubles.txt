@@ -8,6 +8,8 @@ output/htcondor_runs/docking_feb_2026_run
 docking_args/sadA_docking_set_v1_ligand+mutate_area_no_low_res_nstruct_100.txt
 --master_variant_fn
 variant_lists/rosetta_ligand_feb_2026_run/sadA_test_doubles_20260205_135905/selected/k2.txt
+variant_lists/rosetta_ligand_feb_2026_run/sadA_test_doubles_20260205_135905/selected/k2.txt
 --variants_per_job
 1
 --github_tag
+851716af2b691f251e721d6150ea989fb1a52e9a

@@ -13,6 +13,7 @@ import pandas as pd
 
 import analysis as an
 import database as db
+import protocol_analysis as pa
 
 
 def check_for_failed_jobs(main_dir, energize_out_dir, out_dir):
@@ -231,7 +232,6 @@ def gen_cleanup_run_def(main_run_dir):
 
 
 def main(args):
-
     # stats, database, cleanup
     print("Running mode: {}".format(args.mode))
 
@@ -247,15 +247,15 @@ def main(args):
             energize_out_dir = join(main_dir, "output", "energize_outputs")
 
             if isdir(processed_run_dir):
-                print("err: processed run directory already exists, delete before continuing: {}".format(processed_run_dir))
+                print("err: processed run directory already exists, delete before continuing: {}".format(
+                    processed_run_dir))
             else:
                 os.makedirs(processed_run_dir)
                 process_run(main_dir, condor_log_dir, energize_out_dir, processed_run_dir)
 
-
-            if args.make_single_variant_replicate_analysis:
-                import protocol_analysis as pa
-                pa.make_single_variant_replicate_analysis(processed_run_dir)
+            if args.make_variant_replicate_analysis:
+                singles = False if args.not_singles else True
+                pa.make_variant_replicate_analysis(processed_run_dir, singles=singles)
 
         elif args.mode == "database":
             processed_run_dir = join(main_dir, "processed_run")
@@ -291,10 +291,14 @@ if __name__ == "__main__":
                         type=str,
                         default=None)
 
-    parser.add_argument("--make_single_variant_replicate_analysis",
-                        help="set this flag to true if you have two replicates of all single variants in a run "
+    parser.add_argument("--make_variant_replicate_analysis",
+                        help="set this flag to true if you have two replicates of all variants in a run "
                              "and want to run a post process analysis. Useful for exploring different protocols.",
                         action="store_true")
 
-    main(parser.parse_args())
+    parser.add_argument("--not_singles",
+                        help="if make_variant_replicate_analysis is true,"
+                             "then set this flag if the replicates are not single mutants",
+                        action="store_true")
 
+    main(parser.parse_args())

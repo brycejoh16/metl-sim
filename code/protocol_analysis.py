@@ -307,12 +307,13 @@ def docked_on_struct_heatmap(pdb_file, df, output_pdb):
 
 
 
-def make_single_variant_replicate_analysis(out_dir):
+def make_variant_replicate_analysis(out_dir,singles=True):
     df=pd.read_csv(join(out_dir,'energies_df.csv'))
     pdb_file =join('pdb_files','prepared_pdb_files',df['pdb_fn'][0])
     wt_seq= get_seq_from_pdb(pdb_file)
 
-    assert len(df)==(len(wt_seq)*19*2)+2, 'this should be 2 replicates of single mutants, (19*N*2) plus ' \
+    if singles:
+        assert len(df)==(len(wt_seq)*19*2)+2, 'this should be 2 replicates of single mutants, (19*N*2) plus ' \
                                           'two wild type variants _wt.'
 
     # Group by variant
@@ -342,21 +343,23 @@ def make_single_variant_replicate_analysis(out_dir):
                 #       f"{'_'.join(out_dir.split('/')[-2].split('_')[4:])}",
                 save_path=join(out_dir,'replicate1_vs_replicate2.png'))
 
-    heatmap_df1= plot_weights_heatmap(df1, save_fn=join(out_dir,'heatmap_replicate_1.png'),
-                        wildtype_seq=wt_seq, positions_per_row=100)
+    if singles:
+        heatmap_df1= plot_weights_heatmap(df1, save_fn=join(out_dir,'heatmap_replicate_1.png'),
+                            wildtype_seq=wt_seq, positions_per_row=100)
 
-    out_pdb=join(out_dir, "replicate_1_bsplines_docked_on_struct.pdb")
-    docked_on_struct_heatmap(pdb_file, heatmap_df1, output_pdb=out_pdb)
-    save_new_pdb_image(join(out_dir, "replicate_1_bsplines_docked_on_struct.png"), out_pdb)
+        out_pdb=join(out_dir, "replicate_1_bsplines_docked_on_struct.pdb")
+        docked_on_struct_heatmap(pdb_file, heatmap_df1, output_pdb=out_pdb)
+        save_new_pdb_image(join(out_dir, "replicate_1_bsplines_docked_on_struct.png"), out_pdb)
 
     df1.to_csv(join(out_dir,'replicate_1.csv'),index=True,index_label='variant')
 
-    heatmap_df2=plot_weights_heatmap(df2, save_fn=join(out_dir, 'heatmap_replicate_2.png'),
-                         wildtype_seq=wt_seq, positions_per_row=100)
+    if singles:
+        heatmap_df2=plot_weights_heatmap(df2, save_fn=join(out_dir, 'heatmap_replicate_2.png'),
+                             wildtype_seq=wt_seq, positions_per_row=100)
 
-    out_pdb=join(out_dir, "replicate_2_bspline_docked_on_struct.pdb")
-    docked_on_struct_heatmap(pdb_file, heatmap_df2, output_pdb=out_pdb)
-    save_new_pdb_image(join(out_dir,"replicate_2_bsplines_docked_on_struct.png"), out_pdb)
+        out_pdb=join(out_dir, "replicate_2_bspline_docked_on_struct.pdb")
+        docked_on_struct_heatmap(pdb_file, heatmap_df2, output_pdb=out_pdb)
+        save_new_pdb_image(join(out_dir,"replicate_2_bsplines_docked_on_struct.png"), out_pdb)
 
     df2.to_csv(join(out_dir, 'replicate_2.csv'), index=True,index_label='variant')
 
