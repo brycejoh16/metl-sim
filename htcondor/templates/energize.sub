@@ -24,7 +24,8 @@ transfer_input_files = run.sh, code.tar.gz,  args/$(Process).txt, osdf:///chtc/s
 transfer_output_files = output
 
 request_cpus = 1
-request_memory = 3GB
+request_memory = 2GB
+retry_request_memory = 3GB
 request_disk = 20GB
 
 environment = "CLUSTER=$(Cluster) PROCESS=$(Process) RUNNINGON=$$(Name) GITHUB_TAG=$ENV(GITHUB_TAG) PYSCRIPT=$ENV(PYSCRIPT)"
