@@ -1,14 +1,14 @@
 --run_type
 rosetta_ligand_sadA
 --run_name
-sadA_rosetta_ligand_v1_ligand+mutate_area_no_low_res_nstruct_100_150k_doubles
+sadA_rosetta_ligand_v1_ligand+mutate_area_no_low_res_nstruct_100_library_variants
 --out_dir
 output/htcondor_runs/docking_feb_2026_run
 --energize_args_fn
 docking_args/sadA_docking_set_v1_ligand+mutate_area_no_low_res_nstruct_100.txt
 --master_variant_fn
-variant_lists/rosetta_ligand_feb_2026_run/sadA_doubles_150k_20260216_164320/selected/k2.txt
+variant_lists/SadA_lysate_library.txt
+variant_lists/SadA_lysate_library.txt
 --variants_per_job
 1
 --github_tag
-3b54c3b1e3dc108d829033550711d9a98058e8a5
