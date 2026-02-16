@@ -12,3 +12,4 @@ variant_lists/SadA_lysate_library.txt
 --variants_per_job
 1
 --github_tag
+9c4e4ce4a879eb6ce37a9d644ff41ceafac3ca09
