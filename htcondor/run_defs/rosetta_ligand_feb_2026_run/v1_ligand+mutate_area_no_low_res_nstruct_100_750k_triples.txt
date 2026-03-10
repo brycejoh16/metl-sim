@@ -11,3 +11,4 @@ variant_lists/rosetta_ligand_feb_2026_run/sadA_triples_750k_20260224_094056/sele
 --variants_per_job
 1
 --github_tag
+eeb5bee0ccdb2ebf9d1029e43653949b95648040
