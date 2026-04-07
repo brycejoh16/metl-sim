@@ -1,0 +1,12 @@
+--dataframes
+output/htcondor_runs/docking_feb_2026_run/condor_energize_2026-04-01_16-24-24_sadA_rosetta_ligand_v1_ligand+mutate_area_no_low_res_nstruct_100_2M
+output/htcondor_runs/runs_prior_oct_2025/condor_energize_2025-01-30_17-27-43_sadA_2M_random
+--suffixes
+ligand
+relax
+--output_dir
+merged_output
+--github_commit
+
+--output_dir
+output/htcondor_runs/docking_feb_2026_run/condor_energize_2026-04-07_sadA_2M_random_all_energies

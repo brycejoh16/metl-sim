@@ -12,3 +12,4 @@ variant_lists/rosetta_ligand_feb_2026_run/sadA_quads_500k_20260310_151745/select
 --variants_per_job
 1
 --github_tag
+500b994d163ab8e63a44b9034df46141998b4de1
