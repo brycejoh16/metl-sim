@@ -1,0 +1,3 @@
+Failed log dirs: 0, Failed jobs: 0, Missing jobs: 0, Failed variants: 0
+Failed job IDs: []
+Missing job IDs: []
