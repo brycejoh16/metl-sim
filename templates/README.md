@@ -4,7 +4,7 @@ RosettaScripts XML files and text files of command-line arguments, copied into t
 
 ## SadX FastRelax templates
 
-Template dir: `energize_wd_template`. 
+Template dir: `metlv1`. 
 
 | Mutant set | NStruct | Replicate 1 | Replicate 2 |
 |---|---:|:---:|:---:|
