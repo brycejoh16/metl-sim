@@ -7,6 +7,6 @@ relax
 --output_dir
 merged_output
 --github_commit
-
+14473867d65396bc264aa8d884fa1b2b6a0abe0a
 --output_dir
 output/htcondor_runs/docking_feb_2026_run/condor_energize_2026-04-07_sadA_2M_random_all_energies

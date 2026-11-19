@@ -28,6 +28,33 @@ Users of this workflow should [cite Rosetta](https://github.com/RosettaCommons/r
         - [Add results to a database](#add-results-to-a-database)
 
 
+## SadX docking 
+
+```
+(metl-sim) $ cat /.singularity.d/labels.json
+{
+        "org.label-schema.build-arch": "amd64",
+        "org.label-schema.build-date": "Monday_13_October_2025_14:43:55_CDT",
+        "org.label-schema.schema-version": "1.0",
+        "org.label-schema.usage.apptainer.version": "1.4.2-1.el9",
+        "org.label-schema.usage.singularity.deffile.bootstrap": "docker",
+        "org.label-schema.usage.singularity.deffile.from": "arnvsharma/metl-sim:latest",
+        "org.opencontainers.image.ref.name": "ubuntu",
+        "org.opencontainers.image.version": "20.04"
+}
+```
+
+And for the version 
+
+```angular2html
+(metl-sim) $ cat dock.out  
+********  (C) Copyright Rosetta Commons Member Institutions.  ***************
+* Use of Rosetta for commercial purposes may require purchase of a license. *
+********  See LICENSE.md or email license@uw.edu for more details. **********
+core.init: Checking for fconfig files in pwd and ./rosetta/flags 
+core.init: Rosetta version: 2025.37+HEAD.df75a9c48e df75a9c48e763e52a7aa3f5dfba077f4da88dbf5 https://github.com/RosettaCommons/rosetta.git 2025-09-03T12:23:30
+```
+
 ## Setup
 
 Install Rosetta v3.13 from [rosettacommons.org](https://www.rosettacommons.org). 
