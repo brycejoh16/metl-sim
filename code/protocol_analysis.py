@@ -105,14 +105,45 @@ def custom_sort(variant):
 
     i , mt = int(variant[1:-1]),variant[-1]
     return i*20+CHARS.index(mt)
-def plot_weights_heatmap(df, save_fn, wildtype_seq, positions_per_row=100):
+def wt_centered_cmap(name="wt_centered"):
+    """Diverging colormap: red = below wildtype (better), grey = wildtype, blue = above."""
+    from matplotlib.colors import LinearSegmentedColormap
+    return LinearSegmentedColormap.from_list(
+        name,
+        [
+            (0.00, "#67001f"),   # strongly below WT  (most stabilizing)
+            (0.25, "#d6604d"),
+            (0.45, "#f0b8ae"),
+            (0.50, "#bfbfbf"),   # wildtype
+            (0.55, "#aec7e0"),
+            (0.75, "#4393c3"),
+            (1.00, "#053061"),   # strongly above WT  (most destabilizing)
+        ],
+    )
+
+
+def plot_weights_heatmap(df, save_fn, wildtype_seq, positions_per_row=100,
+                         cell_size=0.45, label_fontsize=48, tick_fontsize=30,
+                         cbar_fontsize=26, robust_pct=None):
     '''
-    Final version:
-    - Clean layout
-    - No colorbar in main figure
-    - Save colorbar separately as its own PNG
+    Heatmap of interface_delta_X per variant, saved as SVG.
+
+    - Colour is centred on the wildtype interface_delta_X: grey at WT,
+      red below WT (better binding), blue above WT (worse).
+    - Limits are symmetric about the WT value, so the colour scale stays linear
+      in the raw units -- no rescaling of the data itself.
+    - Colourbar is written as its own SVG alongside the heatmap.
+
+    robust_pct: optional float, e.g. 1.0, to clip the colour limits at the
+    1st/99th percentile so a few outliers don't flatten the rest. The data are
+    unchanged; only the colour limits move.
     '''
+    import os
+
     df = df[['interface_delta_X']]
+
+    # --- wildtype value: the centre of the colour scale -----------------------
+    wt_value = float(np.atleast_1d(df.loc['_wt', 'interface_delta_X']).mean())
 
     wt_variants = [f'{wt}{t+1}{wt}' for t, wt in enumerate(wildtype_seq)]
 
@@ -126,15 +157,9 @@ def plot_weights_heatmap(df, save_fn, wildtype_seq, positions_per_row=100):
     # Append to the dataframe
     df = pd.concat([df, wt_rows])
 
-    df = df[df.index!='_wt']
+    df = df[df.index != '_wt']
 
-
-
-    df_sorted = df.sort_index(key=lambda x:[custom_sort(i) for i in x])
-
-
-
-
+    df_sorted = df.sort_index(key=lambda x: [custom_sort(i) for i in x])
 
     model_weights = df_sorted['interface_delta_X'].to_numpy()
 
@@ -147,72 +172,96 @@ def plot_weights_heatmap(df, save_fn, wildtype_seq, positions_per_row=100):
 
     weights_matrix = model_weights.reshape(seq_length, num_amino_acids).T
 
+    # --- colour limits, symmetric about the wildtype --------------------------
+    if robust_pct:
+        lo = np.nanpercentile(weights_matrix, robust_pct)
+        hi = np.nanpercentile(weights_matrix, 100 - robust_pct)
+    else:
+        lo = np.nanmin(weights_matrix)
+        hi = np.nanmax(weights_matrix)
+    half_range = max(wt_value - lo, hi - wt_value)
+    vmin, vmax = wt_value - half_range, wt_value + half_range
+    cmap = wt_centered_cmap()
+
     num_chunks = (seq_length + positions_per_row - 1) // positions_per_row
-    fig_width = positions_per_row * 0.3
-    fig_height = num_chunks * 5
+    fig_width = positions_per_row * cell_size
+    fig_height = num_chunks * num_amino_acids * cell_size
 
-    fig, axes = plt.subplots(nrows=num_chunks, ncols=1,
-                             figsize=(fig_width, fig_height),
-                             sharex=False)
+    # svg.fonttype='none' keeps labels as live text for Illustrator/Inkscape
+    with plt.rc_context({'svg.fonttype': 'none'}):
+        fig, axes = plt.subplots(nrows=num_chunks, ncols=1,
+                                 figsize=(fig_width, fig_height),
+                                 sharex=False)
 
-    if num_chunks == 1:
-        axes = [axes]
+        if num_chunks == 1:
+            axes = [axes]
 
-    vmin = np.min(weights_matrix)
-    vmax = np.max(weights_matrix)
-    cmap = "vlag"
+        for chunk_idx, ax in enumerate(axes):
+            start = chunk_idx * positions_per_row
+            end = min((chunk_idx + 1) * positions_per_row, seq_length)
+            chunk_weights = weights_matrix[:, start:end]
+            width = end - start
 
-    for chunk_idx, ax in enumerate(axes):
-        start = chunk_idx * positions_per_row
-        end = min((chunk_idx + 1) * positions_per_row, seq_length)
-        chunk_weights = weights_matrix[:, start:end]
-        width = end - start
+            sns.heatmap(chunk_weights,
+                        cmap=cmap,
+                        cbar=False,
+                        yticklabels=CHARS,
+                        xticklabels=False,
+                        ax=ax,
+                        linewidths=0.5,
+                        linecolor='white',
+                        vmin=vmin,
+                        vmax=vmax)
 
-        sns.heatmap(chunk_weights,
-                    cmap=cmap,
-                    cbar=False,
-                    yticklabels=CHARS,
-                    xticklabels=False,
-                    ax=ax,
-                    linewidths=0.5,
-                    linecolor='white',
-                    vmin=vmin,
-                    vmax=vmax)
+            # Wildtype boxes
+            for pos in range(start, end):
+                aa_index = C2I_MAPPING[wildtype_seq[pos]]
+                rect = Rectangle((pos - start, aa_index), 1, 1,
+                                 fill=False, edgecolor='black', linewidth=1.2)
+                ax.add_patch(rect)
 
-        # Wildtype boxes
-        for pos in range(start, end):
-            aa_index = C2I_MAPPING[wildtype_seq[pos]]
-            rect = Rectangle((pos - start, aa_index), 1, 1,
-                             fill=False, edgecolor='black', linewidth=1.2)
-            ax.add_patch(rect)
+            # X-tick labels
+            tick_positions = np.arange(width)
+            tick_labels = [
+                f'{pos + start + 1}' if (pos + start) % 5 == 0 else ''
+                for pos in tick_positions
+            ]
+            ax.set_xticks(tick_positions + 0.5)
+            ax.set_xticklabels(tick_labels, rotation=45, ha='center',
+                               fontsize=tick_fontsize)
+            ax.set_yticklabels(CHARS, rotation=0, fontsize=tick_fontsize)
+            ax.set_xlabel("Position", fontsize=label_fontsize, labelpad=12)
+            ax.set_ylabel("Amino Acid", fontsize=label_fontsize, labelpad=12)
+            ax.set_xlim(0, positions_per_row)
 
-        # X-tick labels
-        tick_positions = np.arange(width)
-        tick_labels = [
-            f'{pos + start + 1}' if (pos + start) % 5 == 0 else ''
-            for pos in tick_positions
-        ]
-        ax.set_xticks(tick_positions + 0.5)
-        ax.set_xticklabels(tick_labels, rotation=45, ha='center')
-        ax.set_ylabel("Amino Acid")
-        ax.set_xlim(0, positions_per_row)
+        fig.tight_layout()
 
-    fig.tight_layout()
-    fig.savefig(save_fn, dpi=300)
-    plt.close(fig)
+        base = os.path.splitext(save_fn)[0]
+        fig.savefig(f"{base}.svg", format='svg', bbox_inches='tight')
+        plt.close(fig)
 
-    # Create and save separate colorbar figure
-    fig_cb, ax_cb = plt.subplots(figsize=(1.5, 6))
-    norm = plt.Normalize(vmin=vmin, vmax=vmax)
-    sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
-    sm.set_array([])
+        # --- separate colourbar, with the wildtype marked --------------------
+        fig_cb, ax_cb = plt.subplots(figsize=(3.6, 9))
+        norm = plt.Normalize(vmin=vmin, vmax=vmax)
+        sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
+        sm.set_array([])
 
-    cbar = fig_cb.colorbar(sm, cax=ax_cb, orientation='vertical')
-    cbar.set_label("Weight")
-    fig_cb.tight_layout()
-    fig_cb.savefig(f"{''.join(save_fn.split('.')[:-1])}_legend.png", dpi=300)
-    plt.close(fig_cb)
+        cbar = fig_cb.colorbar(sm, cax=ax_cb, orientation='vertical')
+        cbar.set_label("interface_delta_X", fontsize=cbar_fontsize, labelpad=16)
+        cbar.ax.tick_params(labelsize=tick_fontsize)
 
+        # tick at the wildtype value so grey is explicitly labelled
+        ticks = sorted([t for t in cbar.get_ticks() if vmin < t < vmax] + [wt_value])
+        cbar.set_ticks(ticks)
+        cbar.ax.set_yticklabels(
+            [f"WT ({wt_value:.1f})" if np.isclose(t, wt_value) else f"{t:.0f}"
+             for t in ticks],
+            fontsize=tick_fontsize)
+        cbar.ax.set_ylim(vmin, vmax)
+        cbar.ax.axhline(wt_value, color='black', linewidth=1.2)
+
+        fig_cb.savefig(f"{base}_legend.svg", format='svg', bbox_inches='tight')
+        plt.close(fig_cb)
 
     return df_sorted
 
